@@ -12,6 +12,15 @@ object Louvain {
   // yeah, I feel bad for this, sorry
   private var m = 0.0
 
+  def getClustering(graph: Graph[Long, Edge]): Map[Long, Int] = {
+    val dendrogram = getDendrogram(graph)
+    val clustering = mutable.Map(dendrogram.layers.last.toSeq:_*)
+    for (layer <- dendrogram.layers.reverse.tail) {
+      clustering.foreach { case (v, c) => clustering(v) = layer(c) }
+    }
+    clustering
+  }
+
   def getDendrogram(graph: Graph[Long, Edge]): Dendrogram = {
     m = totalWeight(graph.getEdges)
     def makeDendrogram(g: Graph[Long, Edge], layers: List[Map[Long, Int]]) : List[Map[Long, Int]] = {
