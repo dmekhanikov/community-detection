@@ -1,3 +1,3 @@
 package megabyte.communities
 
-class Edge(val weight: Double)
+class Edge(var weight: Double)
