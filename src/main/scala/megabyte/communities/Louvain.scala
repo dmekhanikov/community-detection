@@ -7,7 +7,13 @@ import scala.collection.{Map, mutable}
 
 object Louvain {
 
+  private val MAX_ITERATIONS = 20
+
+  // yeah, I feel bad for this, sorry
+  private var m = 0.0
+
   def getDendrogram(graph: Graph[Long, Edge]): Dendrogram = {
+    m = totalWeight(graph.getEdges)
     def makeDendrogram(g: Graph[Long, Edge], layers: List[Map[Long, Int]]) : List[Map[Long, Int]] = {
       val localClustering = getLocalClustering(g)
       val anyChange = localClustering.keys
@@ -28,7 +34,9 @@ object Louvain {
   private def getLocalClustering(graph: Graph[Long, Edge]): Map[Long, Int] = {
     val clustering = initClustering(graph)
     var change = true
-    while(change) {
+    var it = 0
+    while(it < MAX_ITERATIONS && change) {
+      it += 1
       change = false
       for (v <- graph.getVertices) {
         val neighboringClusters = graph
@@ -80,36 +88,33 @@ object Louvain {
     leaveGain + enterGain
   }
 
-  implicit class GraphExtended(graph: Graph[Long, Edge]) {
-    def subGraphWeight(pred: Edge => Boolean): Double =
-      graph.getEdges.filter(pred).map(e => e.weight).sum
-  }
-
   private def modularityGain(v: Long,
                              cluster: Int,
                              graph: Graph[Long, Edge],
                              clustering: mutable.Map[Long, Int]): Double = {
     val vCluster = clustering(v)
     clustering(v) = -1
+    val clusterVertices = graph.getVertices.filter(v => clustering(v) == cluster).toSet
 
-    // all edges in graph
-    val m = graph.subGraphWeight {e => true }
     // cluster's inner edges
-    val inSum = graph.subGraphWeight { e => graph.getEndpoints(e).forall(v => clustering(v) == cluster) }
+    val inSum = totalWeight(clusterVertices
+      .flatMap(v => graph.getOutEdges(v))
+      .filter(e => graph.getEndpoints(e).forall(v => clustering(v) == cluster)).toSeq) / 2
     // edges incident to the cluster
-    val totSum = graph.subGraphWeight { e => graph.getEndpoints(e).exists(v => clustering(v) == cluster) }
+    val totSum = totalWeight(clusterVertices.flatMap(v => graph.getOutEdges(v)).toSeq) - inSum
     // edges from v to the cluster
-    val kvin = graph.subGraphWeight { e =>
-      val endpoints = graph.getEndpoints(e)
-      endpoints.contains(v) &&
-        endpoints.map(v => clustering(v)).contains(cluster)
-    }
+    val kvin = totalWeight(graph.getOutEdges(v)
+      .filter(e => graph.getEndpoints(e).exists(node => clusterVertices.contains(node))))
     // edges incident to v
-    val kv = graph.subGraphWeight(e => graph.getEndpoints(e).contains(v))
+    val kv = totalWeight(graph.getOutEdges(v))
 
     clustering(v) = vCluster
     ((inSum + kvin) / 2 / m - math.pow((totSum + kv) / 2 / m, 2)) -
       (inSum / 2 / m - math.pow(totSum / 2 / m, 2) - math.pow(kv / 2 / m, 2))
+  }
+
+  private def totalWeight(edges: Iterable[Edge]): Double = {
+    edges.map(e => e.weight).sum
   }
 
   private def initClustering(graph: Graph[Long, Edge]): mutable.Map[Long, Int] = {
