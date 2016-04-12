@@ -1,6 +1,7 @@
 package megabyte.communities
 
 import edu.uci.ics.jung.graph.{Graph, UndirectedSparseGraph}
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
 import scala.collection.{Map, mutable}
@@ -8,6 +9,7 @@ import scala.collection.{Map, mutable}
 object Louvain {
 
   private val MAX_ITERATIONS = 20
+  private val LOG = LoggerFactory.getLogger(Louvain.getClass)
 
   // yeah, I feel bad for this, sorry
   private var m = 0.0
@@ -22,6 +24,7 @@ object Louvain {
   }
 
   def getDendrogram(graph: Graph[Long, Edge]): Dendrogram = {
+    LOG.debug("Getting a dendrogram")
     m = totalWeight(graph.getEdges)
     def makeDendrogram(g: Graph[Long, Edge], layers: List[Map[Long, Int]]) : List[Map[Long, Int]] = {
       val localClustering = getLocalClustering(g)
@@ -41,10 +44,12 @@ object Louvain {
   }
 
   private def getLocalClustering(graph: Graph[Long, Edge]): Map[Long, Int] = {
+    LOG.debug("Getting a local clustering")
     val clustering = initClustering(graph)
     var change = true
     var it = 0
     while(it < MAX_ITERATIONS && change) {
+      LOG.debug("Starting a getLocalClustering loop iteration")
       it += 1
       change = false
       for (v <- graph.getVertices) {
@@ -68,6 +73,7 @@ object Louvain {
   }
 
   private def shrinkGraph(graph: Graph[Long, Edge], clustering: Map[Long, Int]): Graph[Long, Edge] = {
+    LOG.debug("Collapsing clusters to nodes")
     val clusters = clustering.keys.groupBy(v => clustering(v))
     val newGraph = new UndirectedSparseGraph[Long, Edge]()
     clusters.foreach { case (cluster, _) => newGraph.addVertex(cluster) }
