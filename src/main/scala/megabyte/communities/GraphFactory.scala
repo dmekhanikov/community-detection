@@ -5,6 +5,8 @@ import java.io.{BufferedReader, File, FileReader}
 import edu.uci.ics.jung.graph.{UndirectedGraph, UndirectedSparseGraph}
 import edu.uci.ics.jung.io.graphml._
 
+import scala.language.implicitConversions
+
 object GraphFactory {
 
   val WEIGHT_PROP = "weight"
