@@ -1,6 +1,7 @@
-package megabyte.communities
+package megabyte.communities.util
 
 import edu.uci.ics.jung.graph.Graph
+import megabyte.communities.entities.Edge
 
 import scala.collection.JavaConversions._
 import scala.collection.Map

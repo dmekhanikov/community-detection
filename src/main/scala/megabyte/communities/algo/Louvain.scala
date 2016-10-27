@@ -1,6 +1,7 @@
-package megabyte.communities
+package megabyte.communities.algo
 
 import edu.uci.ics.jung.graph.{Graph, UndirectedSparseGraph}
+import megabyte.communities.entities.{Dendrogram, Edge}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._

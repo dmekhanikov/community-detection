@@ -1,9 +1,10 @@
-package megabyte.communities
+package megabyte.communities.util
 
 import java.io.{BufferedReader, File, FileReader}
 
 import edu.uci.ics.jung.graph.{UndirectedGraph, UndirectedSparseGraph}
 import edu.uci.ics.jung.io.graphml._
+import megabyte.communities.entities.Edge
 
 import scala.language.implicitConversions
 

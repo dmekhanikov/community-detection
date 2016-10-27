@@ -1,4 +1,4 @@
-package megabyte.communities
+package megabyte.communities.entities
 
 import scala.collection.Map
 
