@@ -31,8 +31,10 @@ object GraphFactory {
     if (metadata.isDirected) {
       throw new IllegalArgumentException("Directed edges are not supported")
     }
-    val weight = metadata.getProperty(WEIGHT_PROP).toDouble
-    new Edge(weight)
+    Option(metadata.getProperty(WEIGHT_PROP)) match {
+      case Some(weight) => new Edge(weight.toDouble)
+      case None => new Edge()
+    }
   }
 
   private val hyperEdgeTransformer = (metadata: HyperEdgeMetadata) =>
