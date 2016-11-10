@@ -1,10 +1,18 @@
+import sbt.Keys._
+
 name := "community-detection"
 
-version := "1.0"
+version in ThisBuild := "1.0"
 
-scalaVersion := "2.11.8"
+scalaVersion in ThisBuild := "2.11.8"
 
-libraryDependencies ++= Seq(
+lazy val root = project.in(file(".")).aggregate(core, examples)
+
+lazy val core = project
+
+lazy val examples = project.dependsOn(core)
+
+libraryDependencies in ThisBuild ++= Seq(
   "net.sf.jung" % "jung-graph-impl" % "2.1",
   "net.sf.jung" % "jung-io" % "2.1",
   "org.jblas" % "jblas" % "1.2.4",
@@ -14,4 +22,4 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.21"
 )
 
-resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
+resolvers in ThisBuild += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"

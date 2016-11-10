@@ -6,6 +6,7 @@ import megabyte.communities.util.DataTransformer.constructInstances
 
 object KMeans {
 
+  // rows are points
   def getClustering(points: DoubleMatrix, k: Int): Array[Int] = {
     val kMeans = new SimpleKMeans()
     kMeans.setNumClusters(k)
