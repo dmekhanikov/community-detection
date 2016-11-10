@@ -1,4 +1,4 @@
-package megabyte.communities.algo
+package megabyte.communities.algo.graph
 
 import edu.uci.ics.jung.graph.{Graph, UndirectedSparseGraph}
 import megabyte.communities.entities.{Dendrogram, Edge}
