@@ -20,7 +20,14 @@ object SpectralClustering {
   def getClustering(adj: DoubleMatrix, k: Int): Seq[Int] = {
     val d = degreeMatrix(adj)
     val l = d.sub(adj)
-    val Array(vectors, values) = symmetricGeneralizedEigenvectors(l, d, 0, k - 1)
-    KMeans.getClustering(vectors, k)
+    val Array(vectors, values) = symmetricGeneralizedEigenvectors(l, d)
+    // sort by values and take first k
+    val indices = values.toArray
+      .zipWithIndex
+      .sortBy(_._1)
+      .take(k)
+      .map(_._2)
+    val clippedVectors = vectors.getColumns(indices)
+    KMeans.getClustering(clippedVectors, k)
   }
 }
