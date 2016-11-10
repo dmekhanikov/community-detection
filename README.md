@@ -1,14 +1,14 @@
 # Community Detection
 
-This is an attempt to make a tool for community detection on weighted graphs.
+This is an attempt to make a community detection tool.
 
 ## Features
 * Modularity computation
-* Louvain clustering on weighted graphs
+* Louvain and Spectral clustering
 * JUNG library and GraphML format support
 
 ## What's planned
-* Features detection
+* Multilayer constrained clustering
 
 ## Requirements
 * `Scala v2.11`
@@ -22,5 +22,6 @@ There are two ways to use this library: either to use a `GraphFactory` class,
 or construct a JUNG `Graph[Long, Edge]` yourself.
 
 If you choose to read a `graphml` file with a factory, it should contain a
-desctiption of an undirected graph with a `weight` key in its every edge.
+description of an undirected graph. Edges may contain a `weight` key. 
+Default value of the weight is 1.0.
 
