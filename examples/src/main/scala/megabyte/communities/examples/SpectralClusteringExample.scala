@@ -1,5 +1,6 @@
 package megabyte.communities.examples
 
+import java.awt.Color
 import java.io.FileNotFoundException
 
 import megabyte.communities.algo.graph.SpectralClustering
@@ -14,9 +15,23 @@ object SpectralClusteringExample {
     val points = readPoints("jain.txt")
     val adj = DataTransformer.pointsToGraph(points, 1)
     val clustering = SpectralClustering.getClustering(adj, 2)
-    clustering.zipWithIndex.foreach { case (cluster, i) =>
-      println((i + 1) + ": " + cluster)
+    val coloredPoints = (0 until points.rows).map { i =>
+      (points.get(i, 0), points.get(i, 1), getColor(clustering(i)))
     }
+    new PointsPane(coloredPoints)
+  }
+
+  def getColor(i: Int): Color = {
+    val colors = Seq(
+      Color.RED,
+      Color.BLUE,
+      Color.BLACK,
+      Color.MAGENTA,
+      Color.CYAN,
+      Color.ORANGE,
+      Color.GRAY
+    )
+    colors(math.min(i, colors.size - 1))
   }
 
   def readPoints(resource: String): DoubleMatrix = {
