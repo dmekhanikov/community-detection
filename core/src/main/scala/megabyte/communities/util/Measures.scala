@@ -4,16 +4,20 @@ import org.jblas.DoubleMatrix
 
 object Measures {
 
-  def euclid(p1: DoubleMatrix, p2: DoubleMatrix): Double = {
-    val n = p1.columns
+  def euclidDist(p1: DoubleMatrix, p2: DoubleMatrix): Double = {
+    euclidNorm(p1.sub(p2))
+  }
+
+  def euclidNorm(p: DoubleMatrix): Double = {
+    val n = p.columns
     val sqrSum = (0 until n)
-      .map { i => math.pow(p1.get(i) - p2.get(i), 2) }
+      .map { i => math.pow(p.get(i), 2) }
       .sum
     math.sqrt(sqrSum)
   }
 
   def gaussianSim(p1: DoubleMatrix, p2: DoubleMatrix, sigma: Double): Double = {
-    val d = euclid(p1, p2)
+    val d = euclidDist(p1, p2)
     Math.exp(-math.pow(d, 2) / 2 / math.pow(sigma, 2))
   }
 }

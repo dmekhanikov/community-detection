@@ -11,17 +11,15 @@ import scala.collection.JavaConversions._
 
 object Graphs {
 
-  def laplacian(graph: Graph[Int, Edge]): DoubleMatrix = {
-    val adj = adjacencyMatrix(graph)
+  def laplacian(adj: DoubleMatrix): DoubleMatrix = {
     val deg = degreeMatrix(adj)
     deg.subi(adj)
   }
 
-  def symLaplacian[V](graph: Graph[Int, Edge]): DoubleMatrix = {
-    val adj = adjacencyMatrix(graph)
+  def symLaplacian[V](adj: DoubleMatrix): DoubleMatrix = {
     val normDeg: DoubleMatrix = pinv(sqrti(degreeMatrix(adj)))
     val id = eye(adj.columns)
-    id.subi(normDeg.mul(adj).muli(normDeg))
+    id.subi(normDeg.mmul(adj).mmuli(normDeg))
   }
 
   def adjacencyMatrix(graph: Graph[Int, Edge]): DoubleMatrix = {
