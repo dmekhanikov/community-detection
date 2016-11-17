@@ -11,6 +11,7 @@ class PointsPane(val points: Seq[(Double, Double)]) extends JPanel {
   private val edges = getEdges(points)
   private var margin = 30
   private var pointSize = 5
+  private val callbacks = new ArrayBuffer[() => Unit]()
 
   private var _clustering : Option[Seq[Int]] = None
   val constraints: ArrayBuffer[(Int, Int)] = new ArrayBuffer()
@@ -95,6 +96,14 @@ class PointsPane(val points: Seq[(Double, Double)]) extends JPanel {
     val h = frame.getContentPane.getHeight
     (getCoordinate(x, edges.xMin, edges.xMax, w),
       h - getCoordinate(y, edges.yMin, edges.yMax, h))
+  }
+
+  def subscribe(callback: () => Unit): Unit = {
+    callbacks += callback
+  }
+
+  private[widget] def notifyListeners(): Unit = {
+    callbacks.foreach(c => c())
   }
 
   private def getCoordinate(c: Double, cMin: Double, cMax: Double, newSize: Int): Int = {

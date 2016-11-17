@@ -14,6 +14,7 @@ class MouseListener(val pointsPane: PointsPane) extends MouseAdapter {
         case Some(startPoint) =>
           pointsPane.constraints += ((startPoint, point.get))
           pointsPane.selectedPoint = None
+          pointsPane.notifyListeners()
         case None =>
           pointsPane.selectedPoint = point
       }
