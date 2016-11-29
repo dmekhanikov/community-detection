@@ -9,7 +9,7 @@ object Measures {
   }
 
   def euclidNorm(p: DoubleMatrix): Double = {
-    val n = p.columns
+    val n = p.length
     val sqrSum = (0 until n)
       .map { i => math.pow(p.get(i), 2) }
       .sum

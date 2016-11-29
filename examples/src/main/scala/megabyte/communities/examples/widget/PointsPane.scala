@@ -14,8 +14,10 @@ class PointsPane(val points: Seq[(Double, Double)]) extends JPanel {
   private val callbacks = new ArrayBuffer[() => Unit]()
 
   private var _clustering : Option[Seq[Int]] = None
-  val constraints: ArrayBuffer[(Int, Int)] = new ArrayBuffer()
-  var selectedPoint: Option[Int] = None
+  val mlConstraints: ArrayBuffer[(Int, Int)] = new ArrayBuffer()
+  val clConstraints: ArrayBuffer[(Int, Int)] = new ArrayBuffer()
+  var mlStart: Option[Int] = None
+  var clStart: Option[Int] = None
   var curPoint: Option[(Int, Int)] = None
 
   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
@@ -46,16 +48,27 @@ class PointsPane(val points: Seq[(Double, Double)]) extends JPanel {
     }
 
     // draw constraints
-    g2d.setColor(Color.BLUE)
-    g2d.setStroke(new BasicStroke(2))
-    for ((start, end) <- constraints) {
-      drawLine(points(start), points(end), g2d)
-    }
-    if (selectedPoint.isDefined && curPoint.isDefined) {
-      val p1 = points(selectedPoint.get)
+    drawLines(g2d, mlConstraints, Color.BLUE)
+    drawCurLine(g2d, mlStart, Color.BLUE)
+    drawLines(g2d, clConstraints, Color.RED)
+    drawCurLine(g2d, clStart, Color.RED)
+  }
+
+  def drawCurLine(g2d: Graphics2D, start: Option[Int], color: Color) = {
+    g2d.setColor(color)
+    if (start.isDefined && curPoint.isDefined) {
+      val p1 = points(start.get)
       val p1i = getCoordinates(p1._1, p1._2)
       val p2i = curPoint.get
       drawLine(p1i, p2i, g2d)
+    }
+  }
+
+  def drawLines(g2d: Graphics2D, lines: ArrayBuffer[(Int, Int)], color: Color) = {
+    g2d.setColor(color)
+    g2d.setStroke(new BasicStroke(2))
+    for ((start, end) <- lines) {
+      drawLine(points(start), points(end), g2d)
     }
   }
 

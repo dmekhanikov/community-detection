@@ -9,17 +9,37 @@ class MouseListener(val pointsPane: PointsPane) extends MouseAdapter {
 
   override def mousePressed(e: MouseEvent): Unit = {
     val point = getSelectedPoint((e.getX, e.getY))
-    if (SwingUtilities.isLeftMouseButton(e) && point.isDefined) {
-      pointsPane.selectedPoint match {
-        case Some(startPoint) =>
-          pointsPane.constraints += ((startPoint, point.get))
-          pointsPane.selectedPoint = None
-          pointsPane.notifyListeners()
-        case None =>
-          pointsPane.selectedPoint = point
+    if (point.isDefined) {
+      if (SwingUtilities.isLeftMouseButton(e)) {
+        pointsPane.mlStart match {
+          case Some(startPoint) =>
+            pointsPane.mlConstraints += ((startPoint, point.get))
+            pointsPane.mlStart = None
+            pointsPane.notifyListeners()
+          case None =>
+            if (pointsPane.clStart.isEmpty) {
+              pointsPane.mlStart = point
+            } else {
+              pointsPane.clStart = None
+            }
+        }
+      } else if (SwingUtilities.isRightMouseButton(e)) {
+        pointsPane.clStart match {
+          case Some(startPoint) =>
+            pointsPane.clConstraints += ((startPoint, point.get))
+            pointsPane.clStart = None
+            pointsPane.notifyListeners()
+          case None =>
+            if (pointsPane.mlStart.isEmpty) {
+              pointsPane.clStart = point
+            } else {
+              pointsPane.mlStart = None
+            }
+        }
       }
     } else {
-      pointsPane.selectedPoint = None
+      pointsPane.mlStart = None
+      pointsPane.clStart = None
     }
     pointsPane.repaint()
   }
