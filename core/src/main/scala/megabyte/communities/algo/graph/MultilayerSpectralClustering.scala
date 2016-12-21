@@ -4,7 +4,7 @@ import edu.uci.ics.jung.graph.Graph
 import megabyte.communities.algo.points.KMeans
 import megabyte.communities.entities.Edge
 import megabyte.communities.util.Graphs._
-import megabyte.communities.util.Measures
+import megabyte.communities.util.Matrices._
 import org.jblas.{DoubleMatrix, Eigen}
 
 object MultilayerSpectralClustering {
@@ -36,7 +36,7 @@ object MultilayerSpectralClustering {
     KMeans.getClustering(u, k)
   }
 
-  private def toEigenspace(matrix: DoubleMatrix, dim: Int): DoubleMatrix = {
+  def toEigenspace(matrix: DoubleMatrix, dim: Int): DoubleMatrix = {
     val Array(vectors, values) = Eigen.symmetricEigenvectors(matrix)
     // sort by values and take first k
     val indices = (0 until values.columns)
@@ -47,18 +47,5 @@ object MultilayerSpectralClustering {
       .map(_._2)
       .toArray
     vectors.getColumns(indices)
-  }
-
-  private def normRowsI(matrix: DoubleMatrix): DoubleMatrix = {
-    val n = matrix.rows
-    for (i <- 0 until n) {
-      val row = matrix.getRow(i)
-      val norm = Measures.euclidNorm(row)
-      for (j <- 0 until row.columns) {
-        val x = matrix.get(i, j)
-        matrix.put(i, j, x / norm)
-      }
-    }
-    matrix
   }
 }

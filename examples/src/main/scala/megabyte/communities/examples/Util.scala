@@ -24,4 +24,17 @@ object Util {
     }
     matrix
   }
+
+  def constraintMatrix(n: Int, mlConstraints: Seq[(Int, Int)], clConstraints: Seq[(Int, Int)]): DoubleMatrix = {
+    val Q = new DoubleMatrix(n, n)
+    mlConstraints.foreach { case (i, j) =>
+      Q.put(i, j, 1)
+      Q.put(j, i, 1)
+    }
+    clConstraints.foreach { case (i, j) =>
+      Q.put(i, j, -1)
+      Q.put(j, i, -1)
+    }
+    Q
+  }
 }

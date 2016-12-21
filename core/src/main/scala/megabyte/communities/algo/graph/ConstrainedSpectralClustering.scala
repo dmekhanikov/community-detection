@@ -12,6 +12,11 @@ import org.jblas.Solve._
 object ConstrainedSpectralClustering {
 
   def getClustering(adj: DoubleMatrix, constraints: DoubleMatrix): Seq[Int] = {
+    val u = toEigenspace(adj, constraints)
+    (0 until u.length).map(i => if (u.get(i) > 0) 1 else 0)
+  }
+
+  def toEigenspace(adj: DoubleMatrix, constraints: DoubleMatrix): DoubleMatrix = {
     val n = adj.columns
     val vol = adj.sum
     val d = degreeMatrix(adj)
@@ -40,8 +45,6 @@ object ConstrainedSpectralClustering {
       .filter(_._1 > 1e-10)
       .minBy(_._1)
       ._2
-
-    val u = dNorm.mmul(feasibleVectors.getColumn(ind))
-    (0 until n).map(i => if (u.get(i) > 0) 1 else 0)
+    dNorm.mmul(feasibleVectors.getColumn(ind))
   }
 }
