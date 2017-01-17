@@ -1,5 +1,6 @@
 package megabyte.communities.algo.graph
 
+import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
 import megabyte.communities.algo.points.KMeans
 import megabyte.communities.entities.Edge
@@ -7,7 +8,11 @@ import megabyte.communities.util.Graphs._
 import megabyte.communities.util.Matrices._
 import org.jblas.{DoubleMatrix, Eigen}
 
+private class MultilayerSpectralClustering
+
 object MultilayerSpectralClustering {
+
+  private val logger = Logger[MultilayerSpectralClustering]
 
   // alpha - coefficient in the objective function. Importance of layers to be close on the manifold.
   def getClustering(graphs: Seq[Graph[Long, Edge]], k: Int, alpha: Double): Map[Long, Int] = {
@@ -17,20 +22,26 @@ object MultilayerSpectralClustering {
       adjacencyMatrix(renumG)
     }
     val renumClustering = getClustering(adjMatrices, k, alpha)
-    Map(numeration.zip(renumClustering):_*)
+    Map(numeration.zip(renumClustering): _*)
   }
 
   def getClustering(adjMatrices: Seq[DoubleMatrix], k: Int, alpha: Double): Seq[Int] = {
+    logger.info(s"Starting multilayer clustering computation")
     val lSyms = adjMatrices.map(symLaplacian)
-    val us = lSyms.map(l => normRowsI(toEigenspace(l, k)))
+    val us = lSyms.zipWithIndex.map { case (l, i) =>
+      logger.info(s"Starting processing layer #${i + 1}")
+      val u = normRowsI(toEigenspace(l, k))
+      logger.info(s"${i + 1} / ${adjMatrices.size} layers processed")
+      u
+    }
     val n = adjMatrices.head.rows
     val lMod = new DoubleMatrix(n, n)
     lSyms.zip(us).foreach { case (li, ui) =>
-        lMod.addi(
-          li.subi(
-            ui.mmul(ui.transpose()).muli(alpha)
-          )
+      lMod.addi(
+        li.subi(
+          ui.mmul(ui.transpose()).muli(alpha)
         )
+      )
     }
     val u = normRowsI(toEigenspace(lMod, k))
     KMeans.getClustering(u, k)

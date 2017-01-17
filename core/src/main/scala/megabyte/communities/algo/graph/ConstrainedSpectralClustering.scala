@@ -1,13 +1,12 @@
 package megabyte.communities.algo.graph
 
+import megabyte.communities.util.Eigen._
 import megabyte.communities.util.Graphs._
+import megabyte.communities.util.Matrices._
 import megabyte.communities.util.Measures._
 import org.jblas.DoubleMatrix
 import org.jblas.DoubleMatrix._
 import org.jblas.Eigen._
-import megabyte.communities.util.Eigen._
-import org.jblas.MatrixFunctions._
-import org.jblas.Solve._
 
 object ConstrainedSpectralClustering {
 
@@ -19,10 +18,9 @@ object ConstrainedSpectralClustering {
   def toEigenspace(adj: DoubleMatrix, constraints: DoubleMatrix): DoubleMatrix = {
     val n = adj.columns
     val vol = adj.sum
-    val d = degreeMatrix(adj)
-    val dNorm = pinv(sqrti(d))
+    val dNorm = degreeMatrix(adj).sqrtDiagI().invDiagI()
     val lNorm = symLaplacian(adj)
-    val qNorm = dNorm.mmul(constraints).mmul(dNorm)
+    val qNorm = dNorm.mulDiag(constraints).mulByDiagI(dNorm)
     val maxQLam = symmetricEigenvalues(qNorm).sort().get(n - 1)
 
     // solve generalized eigenvalue problem
