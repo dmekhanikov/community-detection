@@ -29,7 +29,9 @@ object Graphs {
       val from = endpoints.getFirst
       val to = endpoints.getSecond
       adj.put(from, to, 1)
-      adj.put(to, from, 1)
+      if (graph.getEdgeType(e) == EdgeType.UNDIRECTED) {
+        adj.put(to, from, 1)
+      }
     }
     adj
   }

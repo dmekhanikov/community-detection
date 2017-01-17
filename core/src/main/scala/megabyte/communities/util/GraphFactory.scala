@@ -2,7 +2,7 @@ package megabyte.communities.util
 
 import java.io.{BufferedReader, File, FileReader}
 
-import edu.uci.ics.jung.graph.{UndirectedGraph, UndirectedSparseGraph}
+import edu.uci.ics.jung.graph.{DirectedSparseGraph, Graph, UndirectedSparseGraph}
 import edu.uci.ics.jung.io.graphml._
 import megabyte.communities.entities.Edge
 
@@ -18,19 +18,18 @@ object GraphFactory {
     }
 
   private val graphTransformer = (metadata: GraphMetadata) => {
-    if (metadata.getEdgeDefault == GraphMetadata.EdgeDefault.UNDIRECTED) {
-      new UndirectedSparseGraph[Long, Edge]()
-    } else {
-      throw new IllegalArgumentException("Directed graphs are not supported")
+    metadata.getEdgeDefault match {
+      case GraphMetadata.EdgeDefault.UNDIRECTED =>
+        new UndirectedSparseGraph[String, Edge]()
+      case GraphMetadata.EdgeDefault.DIRECTED =>
+        new DirectedSparseGraph[String, Edge]()
+      case _ => throw new IllegalArgumentException("Unsupported graph type")
     }
   }
 
-  private val vertexTransformer = (metadata: NodeMetadata) => metadata.getId.toLong
+  private val vertexTransformer = (metadata: NodeMetadata) => metadata.getId
 
   private val edgeTransformer = (metadata: EdgeMetadata) => {
-    if (metadata.isDirected) {
-      throw new IllegalArgumentException("Directed edges are not supported")
-    }
     Option(metadata.getProperty(WEIGHT_PROP)) match {
       case Some(weight) => new Edge(weight.toDouble)
       case None => new Edge()
@@ -40,7 +39,7 @@ object GraphFactory {
   private val hyperEdgeTransformer = (metadata: HyperEdgeMetadata) =>
     throw new IllegalArgumentException("Hyper-edges are not supported")
 
-  def readGraph(file: File): UndirectedGraph[Long, Edge] = {
+  def readGraph(file: File): Graph[String, Edge] = {
     val fileReader = new BufferedReader(new FileReader(file))
     val graphReader = new GraphMLReader2(
       fileReader,
