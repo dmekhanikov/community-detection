@@ -10,6 +10,8 @@ import megabyte.communities.util.GraphFactory
 import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 
+import collection.JavaConversions._
+
 private class ClusteringExperiment
 
 object ClusteringExperiment {
@@ -23,22 +25,21 @@ object ClusteringExperiment {
   }
 
   def main(args: Array[String]): Unit = {
-    val adjs = Seq("twitter", "instagram", "foursquare")
-      .map(name => readGraph(name + ".graphml")._1)
-      .flatMap(symAdj)
+    val graphs = Seq("twitter", "instagram", "foursquare")
+      .map(name => readGraph(name + ".graphml"))
+    val numeration = graphs.flatMap(_.getVertices).toSet.toList
+    val adjs = graphs.flatMap(g => symAdj(g, numeration))
     val clusteringSeq = MultilayerSpectralClustering.getClustering(adjs, 2, 0.1)
     val invClustering = clusteringSeq.groupBy(Predef.identity)
-    print(s"sizes: ${invClustering(0)}, ${invClustering(1)}")
+    LOG.info(s"clusters count: ${invClustering.size}")
+    LOG.info(s"sizes: ${invClustering(0)}, ${invClustering(1)}")
   }
 
-  private def readGraph(fileName: String): (Graph[Int, Edge], Seq[String]) = {
-    val graph = GraphFactory.readGraph(new File(BASE_DIR, fileName))
-    val numeration = numerateNodes(graph)
-    (applyNumeration(graph, numeration), numeration)
+  private def readGraph(fileName: String): Graph[String, Edge] = {
+    GraphFactory.readGraph(new File(BASE_DIR, fileName))
   }
 
-  private def symAdj(graph: Graph[Int, Edge]): (DoubleMatrix, DoubleMatrix) = {
-    val numeration = numerateNodes(graph)
+  private def symAdj[V](graph: Graph[V, Edge], numeration: Seq[V]): (DoubleMatrix, DoubleMatrix) = {
     val numeratedGraph = applyNumeration(graph, numeration)
     val a = adjacencyMatrix(numeratedGraph)
     val aT = a.transpose()

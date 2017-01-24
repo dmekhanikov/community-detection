@@ -23,7 +23,8 @@ object Graphs {
   }
 
   def adjacencyMatrix(graph: Graph[Int, Edge]): DoubleMatrix = {
-    val adj = zeros(graph.getVertexCount, graph.getVertexCount)
+    val n = graph.getVertices.max + 1
+    val adj = zeros(n, n)
     for (e <- graph.getEdges) {
       val endpoints = graph.getEndpoints(e)
       val from = endpoints.getFirst
@@ -51,15 +52,17 @@ object Graphs {
   def applyNumeration[V](graph: Graph[V, Edge], numeration: Seq[V]): Graph[Int, Edge] = {
     val inverseNumeration = Map[V, Int](numeration.zipWithIndex: _*)
     val newGraph = new UndirectedSparseGraph[Int, Edge]
-    for ((v, i) <- numeration.zipWithIndex) {
-      graph.getIncidentEdges(v)
-        .filter(e => !newGraph.containsEdge(e))
-        .foreach { e =>
-          if (!newGraph.containsEdge(e)) {
-            val Seq(src, dst) = graph.getEndpoints(e).map(inverseNumeration)
-            newGraph.addEdge(e, src, dst)
+    for (v <- numeration) {
+      if (graph.containsVertex(v)) {
+        graph.getIncidentEdges(v)
+          .filter(e => !newGraph.containsEdge(e))
+          .foreach { e =>
+            if (!newGraph.containsEdge(e)) {
+              val Seq(src, dst) = graph.getEndpoints(e).map(inverseNumeration)
+              newGraph.addEdge(e, src, dst)
+            }
           }
-        }
+      }
     }
     newGraph
   }
