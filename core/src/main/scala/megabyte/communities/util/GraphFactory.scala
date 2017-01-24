@@ -2,13 +2,18 @@ package megabyte.communities.util
 
 import java.io.{BufferedReader, File, FileReader}
 
+import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.{DirectedSparseGraph, Graph, UndirectedSparseGraph}
 import edu.uci.ics.jung.io.graphml._
 import megabyte.communities.entities.Edge
 
 import scala.language.implicitConversions
 
+private class GraphFactory
+
 object GraphFactory {
+
+  private val logger = Logger[GraphFactory]
 
   val WEIGHT_PROP = "weight"
 
@@ -40,6 +45,7 @@ object GraphFactory {
     throw new IllegalArgumentException("Hyper-edges are not supported")
 
   def readGraph(file: File): Graph[String, Edge] = {
+    logger.info(s"reading graph from file $file")
     val fileReader = new BufferedReader(new FileReader(file))
     val graphReader = new GraphMLReader2(
       fileReader,
@@ -47,6 +53,8 @@ object GraphFactory {
       vertexTransformer,
       edgeTransformer,
       hyperEdgeTransformer)
-    graphReader.readGraph()
+    val graph = graphReader.readGraph()
+    logger.info(s"graph is successfully read from file $file. Nodes: ${graph.getVertexCount}; edges: ${graph.getEdgeCount()}")
+    graph
   }
 }
