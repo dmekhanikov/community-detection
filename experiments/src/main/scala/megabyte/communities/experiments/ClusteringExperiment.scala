@@ -2,6 +2,7 @@ package megabyte.communities.experiments
 
 import java.io.File
 
+import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
 import megabyte.communities.entities.Edge
@@ -9,10 +10,13 @@ import megabyte.communities.util.GraphFactory
 import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 
+private class ClusteringExperiment
+
 object ClusteringExperiment {
 
   private val CITY = "Singapore"
   private val BASE_DIR = new File(s"experiments/src/main/resources/$CITY/graphs")
+  private val LOG = Logger[ClusteringExperiment]
 
   private implicit def pairToSeq[T](pair: (T, T)): Seq[T] = {
     Seq(pair._1, pair._2)
@@ -23,7 +27,7 @@ object ClusteringExperiment {
       .map(name => readGraph(name + ".graphml")._1)
       .flatMap(symAdj)
     val clusteringSeq = MultilayerSpectralClustering.getClustering(adjs, 2, 0.1)
-    val invClustering = clusteringSeq.groupBy(i => i)
+    val invClustering = clusteringSeq.groupBy(Predef.identity)
     print(s"sizes: ${invClustering(0)}, ${invClustering(1)}")
   }
 
@@ -34,7 +38,9 @@ object ClusteringExperiment {
   }
 
   private def symAdj(graph: Graph[Int, Edge]): (DoubleMatrix, DoubleMatrix) = {
-    val a = adjacencyMatrix(graph)
+    val numeration = numerateNodes(graph)
+    val numeratedGraph = applyNumeration(graph, numeration)
+    val a = adjacencyMatrix(numeratedGraph)
     val aT = a.transpose()
     val a1 = a.mul(aT)
     val a2 = aT.mul(a)
