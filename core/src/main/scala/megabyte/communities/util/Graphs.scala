@@ -60,11 +60,14 @@ object Graphs {
   }
 
   def degreeMatrix(adj: DoubleMatrix): DoubleMatrix = {
-    val deg = zeros(adj.rows, adj.columns)
-    for (i <- 0 until adj.columns) {
-      deg.put(i, i, adj.getColumn(i).sum())
-    }
-    deg
+    val degMatrix = zeros(adj.rows, adj.columns)
+    val deg = degrees(adj)
+    deg.zipWithIndex.foreach { case (d: Double, i: Int) => degMatrix.put(i, i, d) }
+    degMatrix
+  }
+
+  def degrees(adj: DoubleMatrix): Seq[Double] = {
+    (0 until adj.rows).map(adj.getRow(_).sum)
   }
 
   def numerateNodes[V](graph: Graph[V, Edge]): Seq[V] = {

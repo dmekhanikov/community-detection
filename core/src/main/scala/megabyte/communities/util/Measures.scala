@@ -28,17 +28,35 @@ object Measures {
 
   def modularity[V](graph: Graph[V, Edge], clustering: Map[V, Int]): Double = {
     val m = graph.getEdges.map(e => e.weight).sum
-    val k = graph.getVertices.map(v => v -> graph.getOutEdges(v).map(e => e.weight).sum).toMap
+    val deg = graph.getVertices.map(v => v -> graph.getOutEdges(v).map(e => e.weight).sum).toMap
     var sum = 0.0
     for (i <- graph.getVertices; j <- graph.getVertices) {
       if (clustering(i) == clustering(j)) {
         Option(graph.findEdge(i, j)) match {
           case Some(edge) =>
-            sum += edge.weight - k(i) * k(j) / 2 / m
+            sum += edge.weight - deg(i) * deg(j) / 2 / m
           case None =>
         }
       }
     }
     sum / 2 / m
+  }
+
+  def modularity(adj: DoubleMatrix, clustering: Seq[Int]): Double = {
+    val n = adj.rows
+    val k = clustering.max + 1
+    val s = DoubleMatrix.zeros(n, k)
+    val deg = Graphs.degrees(adj)
+    val m = deg.sum / 2
+    for (vertex <- 0 until n) {
+      val cluster = clustering(vertex)
+      s.put(vertex, cluster, 1)
+    }
+    val b = DoubleMatrix.zeros(n, n)
+    for (i <- 0 until n; j <- 0 until n) {
+      val v = adj.get(i, j) - deg(i) * deg(j) / 2 / m
+      b.put(i, j, v)
+    }
+    s.transpose.mmul(b).mmul(s).diag.sum / 2 / m
   }
 }

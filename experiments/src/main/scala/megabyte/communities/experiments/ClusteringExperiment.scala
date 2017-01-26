@@ -8,6 +8,7 @@ import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.entities.Edge
 import megabyte.communities.util.GraphFactory
 import megabyte.communities.util.Graphs._
+import megabyte.communities.util.Measures._
 import org.jblas.DoubleMatrix
 
 import collection.JavaConversions._
@@ -27,13 +28,29 @@ object ClusteringExperiment {
     val n = numeration.size
     val adjs = graphs.map(g => symAdjacencyMatrix(applyNumeration(g, numeration), n))
     val summedAdj = makeAdjBinary(adjs.fold(DoubleMatrix.zeros(n, n)) { (m1, m2) => m1.addi(m2) })
-    val clusteringSeq = SpectralClustering.getClustering(summedAdj, 5)
-    val invClustering = clusteringSeq.groupBy(Predef.identity)
-    LOG.info(s"clusters count: ${invClustering.size}")
-    LOG.info(s"sizes:" + invClustering.foldLeft("") {(s, cluster) => s"$s ${cluster._2.size}"})
+    val (k, clusteringSeq) = optimizeClustersCount(summedAdj, 2, 10)
+    LOG.info("Best clustering")
+    logStats(summedAdj, k, clusteringSeq)
   }
 
   private def readGraph(fileName: String): Graph[String, Edge] = {
     GraphFactory.readGraph(new File(BASE_DIR, fileName))
+  }
+
+  private def optimizeClustersCount(adj: DoubleMatrix, start: Int, end: Int): (Int, Seq[Int]) = {
+    (start to end)
+      .map { k =>
+        val clustering = SpectralClustering.getClustering(adj, k)
+        logStats(adj, k, clustering)
+        (k, clustering)
+      }.minBy { case (_, clustering) => modularity(adj, clustering) }
+  }
+
+  private def logStats(adj: DoubleMatrix, k: Int, clustering: Seq[Int]): Unit = {
+    val modul = modularity(adj, clustering)
+    val invClustering = clustering.groupBy(Predef.identity)
+    LOG.info(s"number of clusters: $k")
+    LOG.info(s"sizes:" + invClustering.foldLeft("") {(s, cluster) => s"$s ${cluster._2.size}"})
+    LOG.info(s"modularity: $modul")
   }
 }
