@@ -37,6 +37,28 @@ object Graphs {
     adj
   }
 
+  def symAdjacencyMatrix(graph: Graph[Int, Edge], n: Int): DoubleMatrix = {
+    val adj = zeros(n, n)
+    for (e <- graph.getEdges) {
+      val endpoints = graph.getEndpoints(e)
+      val from = endpoints.getFirst
+      val to = endpoints.getSecond
+      val weight = adj.get(from, to) + 1
+      adj.put(from, to, weight)
+      adj.put(to, from, weight)
+    }
+    adj
+  }
+
+  def makeAdjBinary(adj: DoubleMatrix): DoubleMatrix = {
+    for (i <- 0 until adj.rows; j <- 0 until adj.columns) {
+      if (adj.get(i, j) != 0) {
+        adj.put(i, j, 1)
+      }
+    }
+    adj
+  }
+
   def degreeMatrix(adj: DoubleMatrix): DoubleMatrix = {
     val deg = zeros(adj.rows, adj.columns)
     for (i <- 0 until adj.columns) {
