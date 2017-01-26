@@ -1,7 +1,7 @@
 package megabyte.communities.algo.graph
 
 import edu.uci.ics.jung.graph.Graph
-import megabyte.communities.algo.points.KMeans
+import megabyte.communities.algo.points.XMeans
 import megabyte.communities.entities.Edge
 import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
@@ -28,6 +28,6 @@ object SpectralClustering {
       .take(k)
       .map(_._2)
     val clippedVectors = vectors.getColumns(indices)
-    KMeans.getClustering(clippedVectors, k)
+    XMeans.getClustering(clippedVectors)
   }
 }

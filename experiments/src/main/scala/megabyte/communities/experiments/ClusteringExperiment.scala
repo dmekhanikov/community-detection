@@ -27,9 +27,9 @@ object ClusteringExperiment {
     val numeration = graphs.flatMap(_.getVertices).toSet.toList
     val n = numeration.size
     val adjs = graphs.map(g => symAdjacencyMatrix(applyNumeration(g, numeration), n))
-    val summedAdj = makeAdjBinary(adjs.fold(DoubleMatrix.zeros(n, n)) { (m1, m2) => m1.addi(m2) })
-    val (k, clusteringSeq) = optimizeClustersCount(summedAdj, 2, 10)
-    LOG.info("Best clustering")
+    val summedAdj = adjs.fold(DoubleMatrix.zeros(n, n)) { (m1, m2) => m1.addi(m2) }
+    val (k, clusteringSeq) = optimizeClustersCount(summedAdj, 2, 100)
+    LOG.info("Best clustering:")
     logStats(summedAdj, k, clusteringSeq)
   }
 
@@ -43,13 +43,15 @@ object ClusteringExperiment {
         val clustering = SpectralClustering.getClustering(adj, k)
         logStats(adj, k, clustering)
         (k, clustering)
-      }.minBy { case (_, clustering) => modularity(adj, clustering) }
+      }.maxBy { case (_, clustering) => modularity(adj, clustering) }
   }
 
   private def logStats(adj: DoubleMatrix, k: Int, clustering: Seq[Int]): Unit = {
     val modul = modularity(adj, clustering)
     val invClustering = clustering.groupBy(Predef.identity)
-    LOG.info(s"number of clusters: $k")
+    val clustersNum = clustering.max + 1
+    LOG.info(s"subspace dimensionality: $k")
+    LOG.info(s"number of clusters: $clustersNum")
     LOG.info(s"sizes:" + invClustering.foldLeft("") {(s, cluster) => s"$s ${cluster._2.size}"})
     LOG.info(s"modularity: $modul")
   }
