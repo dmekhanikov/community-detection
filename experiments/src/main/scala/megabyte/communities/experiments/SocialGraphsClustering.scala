@@ -13,13 +13,13 @@ import org.jblas.DoubleMatrix
 
 import collection.JavaConversions._
 
-private class ClusteringExperiment
+private class SocialGraphsClustering
 
-object ClusteringExperiment {
+object SocialGraphsClustering {
 
   private val CITY = "Singapore"
   private val BASE_DIR = new File(s"experiments/src/main/resources/$CITY/graphs")
-  private val LOG = Logger[ClusteringExperiment]
+  private val LOG = Logger[SocialGraphsClustering]
 
   def main(args: Array[String]): Unit = {
     val graphs = Seq("twitter", "instagram", "foursquare")
