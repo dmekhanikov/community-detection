@@ -3,26 +3,25 @@ package megabyte.communities.util
 import edu.uci.ics.jung.graph.Graph
 import megabyte.communities.entities.Edge
 import org.jblas.DoubleMatrix
+import DoubleMatrixOps._
 
 import scala.collection.JavaConversions._
 import scala.collection.Map
 
 object Measures {
 
-  def euclidDist(p1: DoubleMatrix, p2: DoubleMatrix): Double = {
-    euclidNorm(p1.sub(p2))
-  }
-
-  def euclidNorm(p: DoubleMatrix): Double = {
-    val n = p.length
-    val sqrSum = (0 until n)
-      .map { i => math.pow(p.get(i), 2) }
-      .sum
+  def euclidNorm(v: Seq[Double]): Double = {
+    val sqrSum = v.map { x => x * x }.sum
     math.sqrt(sqrSum)
   }
 
+  def cosineSim(a: Seq[Double], b: Seq[Double]): Double = {
+    val prod = a.zip(b).map { case (x, y) => x * y }.sum
+    prod / euclidNorm(a) / euclidNorm(b)
+  }
+
   def gaussianSim(p1: DoubleMatrix, p2: DoubleMatrix, sigma: Double): Double = {
-    val d = euclidDist(p1, p2)
+    val d = p1.distTo(p2)
     Math.exp(-math.pow(d, 2) / 2 / math.pow(sigma, 2))
   }
 
@@ -57,6 +56,6 @@ object Measures {
       val v = adj.get(i, j) - deg(i) * deg(j) / 2 / m
       b.put(i, j, v)
     }
-    s.transpose.mmul(b).mmul(s).diag.sum / 2 / m
+    (s.transpose * b * s).diag.sum / 2 / m
   }
 }

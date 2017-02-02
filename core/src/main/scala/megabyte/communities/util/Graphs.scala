@@ -3,7 +3,7 @@ package megabyte.communities.util
 import edu.uci.ics.jung.graph.util.EdgeType
 import edu.uci.ics.jung.graph.{Graph, UndirectedSparseGraph}
 import megabyte.communities.entities.Edge
-import megabyte.communities.util.Matrices._
+import megabyte.communities.util.DoubleMatrixOps._
 import org.jblas.DoubleMatrix
 import org.jblas.DoubleMatrix._
 
@@ -12,14 +12,12 @@ import scala.collection.JavaConversions._
 object Graphs {
 
   def laplacian(adj: DoubleMatrix): DoubleMatrix = {
-    val deg = degreeMatrix(adj)
-    deg.subi(adj)
+    degreeMatrix(adj) - adj
   }
 
   def symLaplacian[V](adj: DoubleMatrix): DoubleMatrix = {
     val normDeg: DoubleMatrix = degreeMatrix(adj).sqrtDiagI().invDiagI()
-    val id = eye(adj.columns)
-    id.subi(normDeg.mulDiag(adj).mulByDiagI(normDeg))
+    eye(adj.columns) - ((normDeg \* adj) *\= normDeg)
   }
 
   def adjacencyMatrix(graph: Graph[Int, Edge]): DoubleMatrix = {

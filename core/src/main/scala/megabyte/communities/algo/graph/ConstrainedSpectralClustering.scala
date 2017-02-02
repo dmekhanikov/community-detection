@@ -1,9 +1,8 @@
 package megabyte.communities.algo.graph
 
+import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Eigen._
 import megabyte.communities.util.Graphs._
-import megabyte.communities.util.Matrices._
-import megabyte.communities.util.Measures._
 import org.jblas.DoubleMatrix
 import org.jblas.DoubleMatrix._
 import org.jblas.Eigen._
@@ -20,16 +19,16 @@ object ConstrainedSpectralClustering {
     val vol = adj.sum
     val dNorm = degreeMatrix(adj).sqrtDiagI().invDiagI()
     val lNorm = symLaplacian(adj)
-    val qNorm = dNorm.mulDiag(constraints).mulByDiagI(dNorm)
+    val qNorm = (dNorm \* constraints) *\= dNorm
     val maxQLam = symmetricEigenvalues(qNorm).sort().get(n - 1)
 
     // solve generalized eigenvalue problem
-    val q1 = qNorm.sub(eye(n).muli(maxQLam * 0.5))
+    val q1 = qNorm -= (eye(n) *= (maxQLam * 0.5))
     val (vectors, values) = generalizedEigenvectors(lNorm, q1)
     // normalize eigenvectors
     for (i <- 0 until vectors.columns) {
       val col = vectors.getColumn(i)
-      vectors.putColumn(i, col.divi(euclidNorm(col)).muli(math.pow(vol, 0.5)))
+      vectors.putColumn(i, (col /= col.norm) *= math.pow(vol, 0.5))
     }
 
     val I = (0 until n).filter(i => values.get(i) >= 0)
@@ -37,12 +36,12 @@ object ConstrainedSpectralClustering {
 
     val costs = (0 until feasibleVectors.columns).map { i =>
       val v = feasibleVectors.getColumn(i)
-      v.transpose().mmul(lNorm).mmul(v).get(0)
+      (v.transpose() * lNorm * v).get(0)
     }
     val ind = costs.zipWithIndex // indices sorted by cost
       .filter(_._1 > 1e-10)
       .minBy(_._1)
       ._2
-    dNorm.mmul(feasibleVectors.getColumn(ind))
+    dNorm * feasibleVectors.getColumn(ind)
   }
 }

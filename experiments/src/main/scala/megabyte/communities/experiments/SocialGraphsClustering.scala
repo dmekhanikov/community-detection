@@ -6,9 +6,10 @@ import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
 import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.entities.Edge
+import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory
 import megabyte.communities.util.Graphs._
-import megabyte.communities.util.Measures._
+import megabyte.communities.util.Measures.modularity
 import org.jblas.DoubleMatrix
 
 import collection.JavaConversions._
@@ -27,7 +28,7 @@ object SocialGraphsClustering {
     val numeration = graphs.flatMap(_.getVertices).toSet.toList
     val n = numeration.size
     val adjs = graphs.map(g => symAdjacencyMatrix(applyNumeration(g, numeration), n))
-    val summedAdj = adjs.fold(DoubleMatrix.zeros(n, n)) { (m1, m2) => m1.addi(m2) }
+    val summedAdj = adjs.fold(DoubleMatrix.zeros(n, n)) { (m1, m2) => m1 += m2 }
     val (k, clusteringSeq) = optimizeClustersCount(summedAdj, 2, 100)
     LOG.info("Best clustering:")
     logStats(summedAdj, k, clusteringSeq)
@@ -48,11 +49,11 @@ object SocialGraphsClustering {
 
   private def logStats(adj: DoubleMatrix, k: Int, clustering: Seq[Int]): Unit = {
     val modul = modularity(adj, clustering)
-    val invClustering = clustering.groupBy(Predef.identity)
+    val invClustering = clustering.groupBy(identity)
     val clustersNum = clustering.max + 1
     LOG.info(s"subspace dimensionality: $k")
     LOG.info(s"number of clusters: $clustersNum")
-    LOG.info(s"sizes:" + invClustering.foldLeft("") {(s, cluster) => s"$s ${cluster._2.size}"})
+    LOG.info(s"sizes:" + invClustering.foldLeft("") { (s, cluster) => s"$s ${cluster._2.size}" })
     LOG.info(s"modularity: $modul")
   }
 }

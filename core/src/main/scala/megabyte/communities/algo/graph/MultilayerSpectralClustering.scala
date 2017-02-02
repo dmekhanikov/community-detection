@@ -2,10 +2,10 @@ package megabyte.communities.algo.graph
 
 import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
-import megabyte.communities.algo.points.KMeans
+import megabyte.communities.algo.points.XMeans
 import megabyte.communities.entities.Edge
+import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs._
-import megabyte.communities.util.Matrices._
 import org.jblas.{DoubleMatrix, Eigen}
 
 private class MultilayerSpectralClustering
@@ -30,21 +30,17 @@ object MultilayerSpectralClustering {
     val lSyms = adjMatrices.map(symLaplacian)
     val us = lSyms.zipWithIndex.map { case (l, i) =>
       logger.info(s"Starting processing layer #${i + 1}")
-      val u = normRowsI(toEigenspace(l, k))
+      val u = toEigenspace(l, k).normRowsI()
       logger.info(s"${i + 1} / ${adjMatrices.size} layers processed")
       u
     }
     val n = adjMatrices.head.rows
     val lMod = new DoubleMatrix(n, n)
     lSyms.zip(us).foreach { case (li, ui) =>
-      lMod.addi(
-        li.subi(
-          ui.mmul(ui.transpose()).muli(alpha)
-        )
-      )
+      lMod += (li -= ((ui * ui.transpose()) *= alpha))
     }
-    val u = normRowsI(toEigenspace(lMod, k))
-    KMeans.getClustering(u, k)
+    val u = toEigenspace(lMod, k).normRowsI()
+    XMeans.getClustering(u)
   }
 
   def toEigenspace(matrix: DoubleMatrix, dim: Int): DoubleMatrix = {
