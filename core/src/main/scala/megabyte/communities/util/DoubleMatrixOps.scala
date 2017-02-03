@@ -38,8 +38,7 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
   }
 
   def *\=(other: DoubleMatrix): DoubleMatrix = {
-    val n = self.rows
-    for (i <- 0 until n; j <- 0 until n) {
+    for (i <- 0 until self.rows; j <- 0 until self.columns) {
       val v = self.get(i, j) * other.get(j, j)
       self.put(i, j, v)
     }
@@ -47,13 +46,14 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
   }
 
   def \*(other: DoubleMatrix): DoubleMatrix = {
-    val n = self.rows
-    val result = new DoubleMatrix(n, n)
-    for (i <- 0 until n; j <- 0 until n) {
+    val rows = other.rows
+    val cols = other.columns
+    val result = new DoubleMatrix(rows, cols)
+    for (i <- 0 until rows; j <- 0 until cols) {
       val v = other.get(i, j) * self.get(i, i)
       result.put(i, j, v)
     }
-    self
+    result
   }
 
   def invDiagI(): DoubleMatrix = {

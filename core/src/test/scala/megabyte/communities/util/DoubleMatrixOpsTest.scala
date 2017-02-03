@@ -12,7 +12,7 @@ class DoubleMatrixOpsTest extends FlatSpec with Matchers {
     }
   }
 
-  "a \\* b" should "bo equal to a * b when b is diagonal" in {
+  """a \* b""" should "bo equal to a * b when b is diagonal" in {
     50 times {
       val a = genDiagMatrix(15)
       val b = genMatrix(15, 10)
@@ -32,7 +32,7 @@ class DoubleMatrixOpsTest extends FlatSpec with Matchers {
     }
   }
 
-  "a *\\= b" should "be equal to a * b when b is diagonal" in {
+  """a *\= b""" should "be equal to a * b when b is diagonal" in {
     50 times {
       val a = genMatrix(15, 10)
       val b = genDiagMatrix(10)

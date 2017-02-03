@@ -34,6 +34,7 @@ libraryDependencies in ThisBuild ++= Seq(
   "org.slf4j" % "slf4j-simple" % versions.slf4j,
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
 
+  "org.scalactic" %% "scalactic" % "3.0.1",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
 
