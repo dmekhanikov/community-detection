@@ -32,7 +32,11 @@ libraryDependencies in ThisBuild ++= Seq(
 
   "org.slf4j" % "slf4j-api" % versions.slf4j,
   "org.slf4j" % "slf4j-simple" % versions.slf4j,
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
+
+scalacOptions += "-feature"
 
 resolvers in ThisBuild += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
