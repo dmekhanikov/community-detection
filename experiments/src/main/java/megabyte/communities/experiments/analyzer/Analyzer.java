@@ -1,4 +1,4 @@
-package megabyte.communities.analyzer;
+package megabyte.communities.experiments.analyzer;
 
 import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;

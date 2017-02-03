@@ -1,4 +1,4 @@
-package megabyte.communities.dao;
+package megabyte.communities.experiments.dao;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;

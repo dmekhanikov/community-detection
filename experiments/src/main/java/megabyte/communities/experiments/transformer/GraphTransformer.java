@@ -1,9 +1,9 @@
-package megabyte.communities.transformer;
+package megabyte.communities.experiments.transformer;
 
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.io.GraphMLWriter;
-import megabyte.communities.dao.MongoDAO;
+import megabyte.communities.experiments.dao.MongoDAO;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;

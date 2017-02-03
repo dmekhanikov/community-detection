@@ -1,4 +1,4 @@
-package megabyte.communities.transformer;
+package megabyte.communities.experiments.transformer;
 
 import java.util.ArrayList;
 import java.util.Collection;
