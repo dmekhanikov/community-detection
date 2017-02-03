@@ -6,6 +6,7 @@ import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
 import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.entities.Edge
+import megabyte.communities.experiments.config.ExperimentConfig
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory
 import megabyte.communities.util.Graphs._
@@ -18,8 +19,9 @@ private class SocialGraphsClustering
 
 object SocialGraphsClustering {
 
-  private val CITY = "Singapore"
-  private val BASE_DIR = new File(s"experiments/src/main/resources/$CITY/graphs")
+  private val CITY = ExperimentConfig.config.city
+  private val BASE_DIR = ExperimentConfig.config.baseDir
+  private val GRAPHS_DIR = new File(s"$BASE_DIR/$CITY/graphs/connections")
   private val LOG = Logger[SocialGraphsClustering]
 
   def main(args: Array[String]): Unit = {
@@ -35,7 +37,7 @@ object SocialGraphsClustering {
   }
 
   private def readGraph(fileName: String): Graph[String, Edge] = {
-    GraphFactory.readGraph(new File(BASE_DIR, fileName))
+    GraphFactory.readGraph(new File(GRAPHS_DIR, fileName))
   }
 
   private def optimizeClustersCount(adj: DoubleMatrix, start: Int, end: Int): (Int, Seq[Int]) = {

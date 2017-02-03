@@ -3,6 +3,7 @@ package megabyte.communities.experiments.transformer;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.io.GraphMLWriter;
+import megabyte.communities.experiments.config.ExperimentConfig;
 import megabyte.communities.experiments.dao.MongoDAO;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -18,8 +19,8 @@ public class GraphTransformer {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphTransformer.class);
 
-    private static final String CITY = "Singapore";
-    private static final String BASE_DIR = "experiments/src/main/resources/" + CITY;
+    private static final String CITY = ExperimentConfig.config().city();
+    private static final String BASE_DIR = ExperimentConfig.config().baseDir() + "/" + CITY;
     private static final String IDS_DIR = BASE_DIR + "/ids";
     private static final String OUT_DIR = BASE_DIR + "/graphs";
 

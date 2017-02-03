@@ -3,6 +3,7 @@ package megabyte.communities.experiments.transformer
 import java.io.{BufferedWriter, File, FileWriter}
 
 import com.typesafe.scalalogging.Logger
+import megabyte.communities.experiments.config.ExperimentConfig
 import megabyte.communities.util.Measures
 import org.jblas.DoubleMatrix
 
@@ -14,9 +15,10 @@ object SimilarityGraphConstructor {
 
   private val LOG = Logger[SimilarityGraphConstructor]
 
-  private val CITY = "Singapore"
-  private val FEATURES_DIR = new File(s"experiments/src/main/resources/$CITY/features")
-  private val GRAPHS_DIR = new File(s"experiments/src/main/resources/$CITY/graphs/similarity")
+  private val BASE_DIR = ExperimentConfig.config.baseDir
+  private val CITY = ExperimentConfig.config.city
+  private val FEATURES_DIR = new File(s"$BASE_DIR/$CITY/features")
+  private val GRAPHS_DIR = new File(s"$BASE_DIR/$CITY/graphs/similarity")
   private val NETWORKS = Seq(
     ("twitter", Seq("LDA50Features.csv", "LIWCFeatures.csv", "manuallyDefinedTextFeatures.csv")),
     ("instagram", Seq("imageConceptsFeatures.csv")),

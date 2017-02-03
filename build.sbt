@@ -25,6 +25,8 @@ libraryDependencies in experiments ++= Seq(
 )
 
 libraryDependencies in ThisBuild ++= Seq(
+  "org.scalaz" % "scalaz-core_2.11" % "7.3.0-M8",
+
   "net.sf.jung" % "jung-graph-impl" % versions.jung,
   "net.sf.jung" % "jung-io" % versions.jung,
   "org.jblas" % "jblas" % "1.2.4",
