@@ -5,13 +5,14 @@ import java.util.Properties
 
 import scalaz.Scalaz._
 
-class ExperimentConfig private(val baseDir: String, val city: String)
+class ExperimentConfig private(val baseDir: String, val city: String, val network: Option[String])
 
 object ExperimentConfig {
 
   private val CONFIG_FILE_NAME = "config.properties"
   private val CITY_PROP = "city"
   private val DATA_DIR_PROP = "dataDir"
+  private val NETWORK_PROP = "network"
 
   lazy val config: ExperimentConfig = load()
 
@@ -29,7 +30,8 @@ object ExperimentConfig {
       .getOrElse(throwNoProperty(DATA_DIR_PROP))
     val city = Option(properties.getProperty(CITY_PROP))
       .getOrElse(throwNoProperty(CITY_PROP))
-    new ExperimentConfig(dataDir, city)
+    val network = Option(properties.getProperty(NETWORK_PROP))
+    new ExperimentConfig(dataDir, city, network)
   }
 
   private def throwNoProperty(prop: String): Nothing = {
