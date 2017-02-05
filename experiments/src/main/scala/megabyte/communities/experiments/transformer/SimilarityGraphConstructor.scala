@@ -103,7 +103,10 @@ object SimilarityGraphConstructor {
     for (i <- (0 until n).par; j <- (0 until n).par) {
       val a = users(numeration(i))
       val b = users(numeration(j))
-      adj.put(i, j, Measures.cosineSim(a, b))
+      val diff = a.zip(b).map { case (x, y) => x - y }
+      val dist = Measures.euclidNorm(diff)
+      val s = math.exp(-math.pow(dist, 2) / 2)
+      adj.put(i, j, s)
     }
     adj
   }
@@ -127,7 +130,7 @@ object SimilarityGraphConstructor {
   }
 
   private def unquote(s: String): String = {
-    s.filter {c => c != '"' }
+    s.filter { c => c != '"' }
   }
 
   private def writeMatrix(matrix: DoubleMatrix, header: Seq[String], file: File): Unit = {
