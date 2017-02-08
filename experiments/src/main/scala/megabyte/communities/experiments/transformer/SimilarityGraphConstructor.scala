@@ -1,9 +1,11 @@
 package megabyte.communities.experiments.transformer
 
 import java.io.{BufferedWriter, File, FileWriter}
+import java.util.Locale
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Measures
 import org.jblas.DoubleMatrix
 
@@ -24,6 +26,7 @@ object SimilarityGraphConstructor {
     ("instagram", Seq("imageConceptsFeatures.csv")),
     ("foursquare", Seq("venueCategoriesFeatures5Months.csv"))
   )
+  private val SIGMA_FACTOR = 1.5
 
   type Features = Seq[Double]
   type Users = Map[String, Features]
@@ -99,15 +102,20 @@ object SimilarityGraphConstructor {
 
   private def calcAdjMatrix(users: Users, numeration: Seq[String]): DoubleMatrix = {
     val n = users.keys.size
-    val adj = new DoubleMatrix(n, n)
-    for (i <- (0 until n).par; j <- (0 until n).par) {
+    val distances = new DoubleMatrix(n, n)
+    for (i <- (0 until n).par; j <- (i + 1 until n).par) {
       val a = users(numeration(i))
       val b = users(numeration(j))
       val diff = a.zip(b).map { case (x, y) => x - y }
       val dist = Measures.euclidNorm(diff)
-      val s = math.exp(-math.pow(dist, 2) / 2)
-      adj.put(i, j, s)
+      distances.put(i, j, dist)
+      distances.put(j, i, dist)
     }
+    val sigma = SIGMA_FACTOR * distances.data.sorted.apply(n * n / 2)
+    val adj = distances.map { dist =>
+      math.exp(-math.pow(dist, 2) / 2 / math.pow(sigma, 2))
+    }
+    0 until n foreach (i => adj.put(i, i, 0))
     adj
   }
 
@@ -136,7 +144,8 @@ object SimilarityGraphConstructor {
   private def writeMatrix(matrix: DoubleMatrix, header: Seq[String], file: File): Unit = {
     val writer = new BufferedWriter(new FileWriter(file))
     writer.write(header.mkString(",") + "\n")
-    val adjText = matrix.toString("%f", "", "", ",", "\n")
+    Locale.setDefault(Locale.US)
+    val adjText = matrix.toString("%.10f", "", "", ",", "\n")
     writer.write(adjText)
     writer.close()
   }

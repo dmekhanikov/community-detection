@@ -24,6 +24,15 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
 
   def /=(v: Double): DoubleMatrix = self.divi(v)
 
+  def map(f: Double => Double): DoubleMatrix = {
+    val result = new DoubleMatrix(self.rows, self.columns)
+    for (i <- 0 until self.rows; j <- 0 until self.columns) {
+      val v = f(self.get(i, j))
+      result.put(i, j, v)
+    }
+    result
+  }
+
   def normRowsI(): DoubleMatrix = {
     val n = self.rows
     for (i <- 0 until n) {
