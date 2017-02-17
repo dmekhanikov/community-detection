@@ -1,7 +1,6 @@
 package megabyte.communities.experiments.transformer
 
-import java.io.{BufferedWriter, File, FileWriter}
-import java.util.Locale
+import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig
@@ -54,7 +53,7 @@ object SimilarityGraphConstructor {
       val adj = calcAdjMatrix(users, numeration)
       val outFile = new File(GRAPHS_DIR, s"$network.csv")
       LOG.info(s"Writing result for $network to $outFile")
-      writeMatrix(adj, numeration, outFile)
+      adj.write(numeration, outFile)
     }
     LOG.info("Finished, exiting")
   }
@@ -139,14 +138,5 @@ object SimilarityGraphConstructor {
 
   private def unquote(s: String): String = {
     s.filter { c => c != '"' }
-  }
-
-  private def writeMatrix(matrix: DoubleMatrix, header: Seq[String], file: File): Unit = {
-    val writer = new BufferedWriter(new FileWriter(file))
-    writer.write(header.mkString(",") + "\n")
-    Locale.setDefault(Locale.US)
-    val adjText = matrix.toString("%.10f", "", "", ",", "\n")
-    writer.write(adjText)
-    writer.close()
   }
 }

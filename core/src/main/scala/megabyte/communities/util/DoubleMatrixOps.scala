@@ -1,5 +1,8 @@
 package megabyte.communities.util
 
+import java.io.{BufferedWriter, File, FileWriter, Writer}
+import java.util.Locale
+
 import megabyte.communities.util.DoubleMatrixOps._
 import org.jblas.DoubleMatrix
 
@@ -89,6 +92,31 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
 
   def distTo(other: DoubleMatrix): Double = {
     (this - other).norm
+  }
+
+  def write(file: File): Unit = {
+    val writer = new BufferedWriter(new FileWriter(file))
+    try {
+      self.write(writer)
+    } finally {
+      writer.close()
+    }
+  }
+
+  def write(header: Seq[String], file: File): Unit = {
+    val writer = new BufferedWriter(new FileWriter(file))
+    try {
+      writer.write(header.mkString(",") + "\n")
+      self.write(writer)
+    } finally {
+      writer.close()
+    }
+  }
+
+  def write(writer: Writer): Unit = {
+    Locale.setDefault(Locale.US)
+    val adjText = self.toString("%.10f", "", "", ",", "\n")
+    writer.write(adjText)
   }
 }
 
