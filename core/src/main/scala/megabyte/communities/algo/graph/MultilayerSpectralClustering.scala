@@ -30,7 +30,7 @@ object MultilayerSpectralClustering {
     val lSyms = adjMatrices.map(symLaplacian)
     val us = lSyms.zipWithIndex.map { case (l, i) =>
       LOG.info(s"Starting processing layer #${i + 1}")
-      val u = toEigenspace(l, k).normRowsI()
+      val u = toEigenspace(l, k)
       LOG.info(s"${i + 1} / ${adjMatrices.size} layers processed")
       u
     }
