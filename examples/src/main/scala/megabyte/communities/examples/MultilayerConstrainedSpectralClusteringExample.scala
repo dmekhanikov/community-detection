@@ -1,9 +1,9 @@
 package megabyte.communities.examples
 
-import Util._
-import megabyte.communities.util.DataTransformer._
-import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, MultilayerConstrainedSpectralClustering, MultilayerSpectralClustering}
+import megabyte.communities.algo.graph.{MultilayerConstrainedSpectralClustering, MultilayerSpectralClustering}
+import megabyte.communities.examples.Util._
 import megabyte.communities.examples.widget.PointsPane
+import megabyte.communities.util.DataTransformer._
 import org.jblas.DoubleMatrix
 
 import scala.util.Random
@@ -28,7 +28,7 @@ object MultilayerConstrainedSpectralClusteringExample {
     val n = adjs.head.columns
     val m = adjs.size
     val Q = constraintMatrix(n, pointsPane.mlConstraints, pointsPane.clConstraints)
-    val clustering = MultilayerConstrainedSpectralClustering.getClusteringIndConstraints(adjs, List.fill(m)(Q), 0.1)
+    val clustering = MultilayerConstrainedSpectralClustering.getClustering(adjs, List.fill(m)(Q), 0.1)
     pointsPane.clustering = clustering
   }
 
