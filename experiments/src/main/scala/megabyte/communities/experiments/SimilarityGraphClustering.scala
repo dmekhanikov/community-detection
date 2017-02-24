@@ -17,7 +17,7 @@ object SimilarityGraphClustering {
   private val LOG = Logger[SimilarityGraphClustering]
 
   def main(args: Array[String]): Unit = {
-    val adj = readDataFile(ADJ_FILE)
+    val (_, adj) = readDataFile(ADJ_FILE)
     val (k, clusteringSeq) = optimizeClustersCount(adj, 2, 100)
     LOG.info("Best clustering:")
     logStats(adj, k, clusteringSeq)

@@ -32,12 +32,14 @@ object ClusteringUtil {
     LOG.info(s"modularity: $modul")
   }
 
-  def readDataFile(file: File): DoubleMatrix = {
+  def readDataFile(file: File): (Seq[String], DoubleMatrix) = {
     LOG.info(s"Reading data from file $file")
     val source = io.Source.fromFile(file)
-    val data = source.getLines.drop(1).map { line =>
+    val lines = source.getLines
+    val header = lines.next().split(",")
+    val data = lines.map { line =>
       line.split(",").map(_.trim).map(_.toDouble).array
     }.toArray
-    new DoubleMatrix(data)
+    (header, new DoubleMatrix(data))
   }
 }

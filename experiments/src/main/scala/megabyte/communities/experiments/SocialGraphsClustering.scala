@@ -3,8 +3,6 @@ package megabyte.communities.experiments
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import edu.uci.ics.jung.graph.Graph
-import megabyte.communities.entities.Edge
 import megabyte.communities.experiments.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig
 import megabyte.communities.util.DoubleMatrixOps._

@@ -24,7 +24,7 @@ object MultilayerSimilarityGraphClustering {
 
   def main(args: Array[String]): Unit = {
     val adjs = INPUT_FILES.par.map { fileName =>
-      readDataFile(new File(GRAPHS_DIR, fileName))
+      readDataFile(new File(GRAPHS_DIR, fileName))._2
     }.seq
     val clustering = MultilayerSpectralClustering.getClustering(adjs, 10, 0.2)
     logStats(clustering)
