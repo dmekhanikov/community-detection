@@ -1,10 +1,10 @@
-package megabyte.communities.experiments
+package megabyte.communities.experiments.clustering
 
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
-import megabyte.communities.experiments.ClusteringUtil._
+import megabyte.communities.experiments.clustering.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig
 
 private class MultilayerSimilarityGraphClustering

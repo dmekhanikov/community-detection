@@ -1,9 +1,9 @@
-package megabyte.communities.experiments
+package megabyte.communities.experiments.clustering
 
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.experiments.ClusteringUtil._
+import megabyte.communities.experiments.clustering.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory

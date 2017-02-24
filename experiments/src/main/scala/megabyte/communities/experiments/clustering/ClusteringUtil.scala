@@ -1,4 +1,4 @@
-package megabyte.communities.experiments
+package megabyte.communities.experiments.clustering
 
 import java.io.File
 
