@@ -27,7 +27,7 @@ object ConstrainedClusteringExample {
 
   private def updateClustering(pointsPane: PointsPane, adj: DoubleMatrix): Unit = {
     val Q = constraintMatrix(adj.columns, pointsPane.mlConstraints, pointsPane.clConstraints)
-    val clustering = ConstrainedSpectralClustering.getClustering(adj, Q)
+    val clustering = ConstrainedSpectralClustering.getClustering(adj, Q, 2)
     pointsPane.clustering = clustering
   }
 }

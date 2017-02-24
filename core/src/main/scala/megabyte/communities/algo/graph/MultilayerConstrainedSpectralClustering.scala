@@ -14,17 +14,19 @@ object MultilayerConstrainedSpectralClustering {
 
   def getClustering(adjMatrices: Seq[DoubleMatrix],
                     constraints: Seq[DoubleMatrix],
+                    k: Int,
                     alpha: Double): Seq[Int] = {
-    val u = toEigenspace(adjMatrices, constraints, alpha)
-    KMeans.getClustering(u, 2)
+    val u = toEigenspace(adjMatrices, constraints, k, alpha)
+    KMeans.getClustering(u, k)
   }
 
   def toEigenspace(adjMatrices: Seq[DoubleMatrix],
                    constraints: Seq[DoubleMatrix],
+                   k: Int,
                    alpha: Double): DoubleMatrix = {
     LOG.info("Processing constraints")
     val us = adjMatrices.zip(constraints).zipWithIndex.map { case ((adj, q), i) =>
-      val u = ConstrainedSpectralClustering.toEigenspace(adj, q)
+      val u = ConstrainedSpectralClustering.toEigenspace(adj, q, k)
       LOG.info(s"Processed constraints on layer #${i + 1}/${adjMatrices.size}")
       u
     }
@@ -35,6 +37,6 @@ object MultilayerConstrainedSpectralClustering {
     lSyms.zip(us).foreach { case (li, ui) =>
       lMod += (li -= ((ui * ui.transpose()) *= alpha))
     }
-    MultilayerSpectralClustering.toEigenspace(lMod, 1).normRowsI()
+    MultilayerSpectralClustering.toEigenspace(lMod, k - 1).normRowsI()
   }
 }

@@ -1,5 +1,6 @@
 package megabyte.communities.algo.graph
 
+import megabyte.communities.algo.points.KMeans
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Eigen._
 import megabyte.communities.util.Graphs._
@@ -9,12 +10,12 @@ import org.jblas.Eigen._
 
 object ConstrainedSpectralClustering {
 
-  def getClustering(adj: DoubleMatrix, constraints: DoubleMatrix): Seq[Int] = {
-    val u = toEigenspace(adj, constraints)
-    (0 until u.length).map(i => if (u.get(i) > 0) 1 else 0)
+  def getClustering(adj: DoubleMatrix, constraints: DoubleMatrix, k: Int): Seq[Int] = {
+    val u = toEigenspace(adj, constraints, k)
+    KMeans.getClustering(u, k)
   }
 
-  def toEigenspace(adj: DoubleMatrix, constraints: DoubleMatrix): DoubleMatrix = {
+  def toEigenspace(adj: DoubleMatrix, constraints: DoubleMatrix, k: Int): DoubleMatrix = {
     val n = adj.columns
     val vol = adj.sum
     val dNorm = degreeMatrix(adj).sqrtDiagI().invDiagI()
@@ -38,10 +39,11 @@ object ConstrainedSpectralClustering {
       val v = feasibleVectors.getColumn(i)
       (v.transpose() * lNorm * v).get(0)
     }
-    val ind = costs.zipWithIndex // indices sorted by cost
+    val indices = costs.zipWithIndex // top k - 1 indices sorted by cost
       .filter(_._1 > 1e-10)
-      .minBy(_._1)
-      ._2
-    dNorm * feasibleVectors.getColumn(ind)
+      .sorted
+      .map(_._2)
+      .take(k - 1)
+    dNorm * feasibleVectors.getColumns(indices.toArray)
   }
 }

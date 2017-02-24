@@ -28,7 +28,7 @@ object MultilayerConstrainedSpectralClusteringExample {
     val n = adjs.head.columns
     val m = adjs.size
     val Q = constraintMatrix(n, pointsPane.mlConstraints, pointsPane.clConstraints)
-    val clustering = MultilayerConstrainedSpectralClustering.getClustering(adjs, List.fill(m)(Q), 0.1)
+    val clustering = MultilayerConstrainedSpectralClustering.getClustering(adjs, List.fill(m)(Q), 2, 0.1)
     pointsPane.clustering = clustering
   }
 
