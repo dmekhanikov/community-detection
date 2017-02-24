@@ -6,10 +6,15 @@ import megabyte.communities.examples.widget.PointsPane
 import megabyte.communities.util.DataTransformer._
 
 object ClusteringExample {
+
+  private val file = "Aggregation.txt"
+  private val k = 7
+  private val sigma = 0.5
+
   def main(args: Array[String]) = {
-    val pointsMatrix = readPoints("Aggregation.txt")
-    val adj = pointsToGraph(pointsMatrix, .5)
-    val clustering = SpectralClustering.getClustering(adj, 7)
+    val pointsMatrix = readPoints(file)
+    val adj = pointsToGraph(pointsMatrix, sigma)
+    val clustering = SpectralClustering.getClustering(adj, k)
     val points = (0 until pointsMatrix.rows).map { i =>
       (pointsMatrix.get(i, 0), pointsMatrix.get(i, 1))
     }

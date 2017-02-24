@@ -12,10 +12,17 @@ object MultilayerClusteringExample {
 
   private val random = new Random(System.currentTimeMillis)
 
-  def main(args: Array[String]) = {
-    val pointsMatrix = readPoints("flame.txt")
-    val adjs = stratify(pointsToGraph(pointsMatrix, 1), 5, 0.05)
-    val clustering = MultilayerSpectralClustering.getClustering(adjs, 2, 0.1)
+  private val file = "flame.txt"
+  private val k = 2
+  private val layers = 5
+  private val p = 0.05
+  private val alpha = 0.1
+  private val sigma = 1
+
+  def main(args: Array[String]): Unit = {
+    val pointsMatrix = readPoints(file)
+    val adjs = stratify(pointsToGraph(pointsMatrix, sigma), layers, p)
+    val clustering = MultilayerSpectralClustering.getClustering(adjs, k, alpha)
     val points = (0 until pointsMatrix.rows).map { i =>
       (pointsMatrix.get(i, 0), pointsMatrix.get(i, 1))
     }

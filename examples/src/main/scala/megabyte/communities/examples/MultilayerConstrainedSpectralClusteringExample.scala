@@ -12,10 +12,17 @@ object MultilayerConstrainedSpectralClusteringExample {
 
   private val random = new Random(System.currentTimeMillis)
 
+  private val file = "jain.txt"
+  private val k = 2
+  private val layers = 5
+  private val alpha = 0.1
+  private val sigma = 0.8
+  private val p = 0.1
+
   def main(args: Array[String]): Unit = {
-    val pointsMatrix = readPoints("flame.txt")
-    val adjs = stratify(pointsToGraph(pointsMatrix, 1), 5, 0.05)
-    val clustering = MultilayerSpectralClustering.getClustering(adjs, 2, 0.1)
+    val pointsMatrix = readPoints(file)
+    val adjs = stratify(pointsToGraph(pointsMatrix, sigma), layers, p)
+    val clustering = MultilayerSpectralClustering.getClustering(adjs, k, alpha)
     val points = (0 until pointsMatrix.rows).map { i =>
       (pointsMatrix.get(i, 0), pointsMatrix.get(i, 1))
     }
@@ -28,7 +35,7 @@ object MultilayerConstrainedSpectralClusteringExample {
     val n = adjs.head.columns
     val m = adjs.size
     val Q = constraintMatrix(n, pointsPane.mlConstraints, pointsPane.clConstraints)
-    val clustering = MultilayerConstrainedSpectralClustering.getClustering(adjs, List.fill(m)(Q), 2, 0.1)
+    val clustering = MultilayerConstrainedSpectralClustering.getClustering(adjs, List.fill(m)(Q), k, alpha)
     pointsPane.clustering = clustering
   }
 
