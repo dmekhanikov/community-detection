@@ -46,10 +46,10 @@ object MultilayerSpectralClustering {
   }
 
   def toEigenspace(matrix: DoubleMatrix, dim: Int): DoubleMatrix = {
-    val Array(vectors, values) = Eigen.symmetricEigenvectors(matrix)
+    val Array(vectors, valuesMatrix) = Eigen.symmetricEigenvectors(matrix)
     // sort by values and take first k
-    val indices = (0 until values.columns)
-      .map(i => matrix.get(i, i))
+    val indices = valuesMatrix
+      .diagonalElements()
       .zipWithIndex
       .sortBy(_._1)
       .take(dim)

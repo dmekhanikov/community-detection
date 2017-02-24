@@ -3,6 +3,7 @@ package megabyte.communities.algo.graph
 import edu.uci.ics.jung.graph.Graph
 import megabyte.communities.algo.points.XMeans
 import megabyte.communities.entities.Edge
+import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 import org.jblas.Eigen._
@@ -19,13 +20,15 @@ object SpectralClustering {
 
   def getClustering(adj: DoubleMatrix, k: Int): Seq[Int] = {
     val l = symLaplacian(adj)
-    val Array(vectors, values) = symmetricEigenvectors(l)
+    val Array(vectors, valuesMatrix) = symmetricEigenvectors(l)
     // sort by values and take first k
-    val indices = values.toArray
+    val indices = valuesMatrix
+      .diagonalElements()
       .zipWithIndex
       .sortBy(_._1)
       .take(k)
       .map(_._2)
+      .toArray
     val clippedVectors = vectors.getColumns(indices)
     XMeans.getClustering(clippedVectors)
   }

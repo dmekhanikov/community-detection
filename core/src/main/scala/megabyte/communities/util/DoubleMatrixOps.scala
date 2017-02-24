@@ -94,6 +94,10 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
     (this - other).norm
   }
 
+  def diagonalElements(): Seq[Double] = {
+    (0 until self.columns).map(i => self.get(i, i))
+  }
+
   def write(file: File): Unit = {
     val writer = new BufferedWriter(new FileWriter(file))
     try {
