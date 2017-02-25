@@ -23,7 +23,7 @@ object SocialGraphsClustering {
 
   def main(args: Array[String]): Unit = {
     val graphs = Seq("twitter", "instagram", "foursquare")
-      .map(name => GraphFactory.readGraph(new File(GRAPHS_DIR, name)))
+      .map(name => GraphFactory.readGraph(new File(GRAPHS_DIR, s"$name.graphml")))
     val numeration = graphs.flatMap(_.getVertices).toSet.toList
     val n = numeration.size
     val adjs = graphs.map(g => symAdjacencyMatrix(applyNumeration(g, numeration), n))
