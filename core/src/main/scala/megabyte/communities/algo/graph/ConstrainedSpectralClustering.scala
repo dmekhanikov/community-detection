@@ -7,15 +7,17 @@ import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 import org.jblas.DoubleMatrix._
 import org.jblas.Eigen._
+import org.jblas.ranges.RangeUtils.interval
 
 object ConstrainedSpectralClustering {
 
   def getClustering(adj: DoubleMatrix, constraints: DoubleMatrix, k: Int): Seq[Int] = {
-    val u = toEigenspace(adj, constraints, k)
+    val u = toEigenspace(adj, constraints)
+      .getColumns(interval(0, k - 1))
     KMeans.getClustering(u, k)
   }
 
-  def toEigenspace(adj: DoubleMatrix, constraints: DoubleMatrix, k: Int): DoubleMatrix = {
+  def toEigenspace(adj: DoubleMatrix, constraints: DoubleMatrix): DoubleMatrix = {
     val n = adj.columns
     val vol = adj.sum
     val dNorm = degreeMatrix(adj).sqrtDiagI().invDiagI()
@@ -39,11 +41,10 @@ object ConstrainedSpectralClustering {
       val v = feasibleVectors.getColumn(i)
       (v.transpose() * lNorm * v).get(0)
     }
-    val indices = costs.zipWithIndex // top k - 1 indices sorted by cost
+    val indices = costs.zipWithIndex
       .filter(_._1 > 1e-10)
       .sorted
       .map(_._2)
-      .take(k - 1)
     dNorm * feasibleVectors.getColumns(indices.toArray)
   }
 }

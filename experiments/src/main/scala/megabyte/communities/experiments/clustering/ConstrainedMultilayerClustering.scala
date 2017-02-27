@@ -15,6 +15,7 @@ import megabyte.communities.experiments.config.ExperimentConfig
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory
 import org.jblas.DoubleMatrix
+import org.jblas.ranges.RangeUtils.interval
 
 import scala.collection.JavaConversions._
 
@@ -66,18 +67,19 @@ object ConstrainedMultilayerClustering {
   }
 
   private def readOrCalcBasis(network: String, adj: DoubleMatrix, q: DoubleMatrix): DoubleMatrix = {
-    val file = new File(SUBSPACE_DIR, s"k$k-$network.csv")
-    if (file.exists()) {
+    val file = new File(SUBSPACE_DIR, s"$network.csv")
+    val u = if (file.exists()) {
       LOG.info(s"File with subspace representation found: $file")
       readBasis(file)
     } else {
       LOG.info(s"Calculating subspace representation for $network")
-      val u = ConstrainedSpectralClustering.toEigenspace(adj, q, k)
+      val u = ConstrainedSpectralClustering.toEigenspace(adj, q)
       LOG.info(s"Writing subspace representation to file: $file")
       file.getParentFile.mkdirs()
       u.write(file)
       u
     }
+    u.getColumns(interval(0, k - 1))
   }
 
   private def readBasis(file: File): DoubleMatrix = {
