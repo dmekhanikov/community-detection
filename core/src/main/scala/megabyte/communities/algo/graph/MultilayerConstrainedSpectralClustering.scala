@@ -30,6 +30,13 @@ object MultilayerConstrainedSpectralClustering {
       LOG.info(s"Processed constraints on layer #${i + 1}/${adjMatrices.size}")
       u
     }
+    combineLayers(adjMatrices, us, k, alpha)
+  }
+
+  def combineLayers(adjMatrices: Seq[DoubleMatrix],
+                    us: Seq[DoubleMatrix],
+                    k: Int,
+                    alpha: Double): DoubleMatrix = {
     val lSyms = adjMatrices.map(symLaplacian)
     val n = adjMatrices.head.rows
     val lMod = new DoubleMatrix(n, n)

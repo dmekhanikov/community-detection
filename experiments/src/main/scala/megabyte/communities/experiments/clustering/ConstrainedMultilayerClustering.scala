@@ -7,12 +7,13 @@ import java.security.MessageDigest
 import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
 import edu.uci.ics.jung.graph.util.EdgeType
-import megabyte.communities.algo.graph.MultilayerConstrainedSpectralClustering
+import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, MultilayerConstrainedSpectralClustering}
+import megabyte.communities.algo.points.KMeans
 import megabyte.communities.entities.Edge
 import megabyte.communities.experiments.clustering.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory
-import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 
 import scala.collection.JavaConversions._
@@ -27,34 +28,69 @@ object ConstrainedMultilayerClustering {
   private val CITY = ExperimentConfig.config.city
   private val GRAPHS_DIR = new File(s"$BASE_DIR/$CITY/graphs/similarity")
   private val CONSTRAINTS_DIR = new File(s"$BASE_DIR/$CITY/graphs/connections")
+  private val SUBSPACE_DIR = new File(BASE_DIR, s"$CITY/subspaces/constrained")
 
-  private val GRAPH_FILES = Seq(
-    "foursquare.csv",
-    "twitter.csv",
-    "instagram.csv")
-  private val CONSTRAINT_FILES = Seq(
-    "foursquare.graphml",
-    "twitter.graphml",
-    "instagram.graphml"
-  )
+  private val k = 30
+  private val alpha = 0.2
+
+  private val NETWORKS = Seq(
+    "foursquare",
+    "twitter",
+    "instagram")
 
   def main(args: Array[String]): Unit = {
     LOG.info("Reading adjacency matrices")
-    val (networksHashes, adjs) = GRAPH_FILES.par.map { fileName =>
-      readDataFile(new File(GRAPHS_DIR, fileName))
+    val (networksHashes, adjs) = NETWORKS.par.map { network =>
+      readDataFile(new File(GRAPHS_DIR, s"$network.csv"))
     }.seq.unzip
     LOG.info("Reading constraint graphs")
-    val constraints = CONSTRAINT_FILES.zip(networksHashes).par.map { case (fileName, hashes) =>
-      val constraintsFile = new File(CONSTRAINTS_DIR, fileName)
-      val graph = GraphFactory.readGraph(constraintsFile)
-      val q = adjMatrix(graph, hashes)
-      LOG.info("constrains matrix is successfully calculated. Degrees: " +
-        degrees(q).map(_.toInt).sortBy(-_).mkString(" "))
-      q
+    val constraints = NETWORKS.zip(networksHashes).par.map { case (network, hashes) =>
+      readConstraintsMatrix(s"$network.graphml", hashes)
     }.seq
-    LOG.info("Running multilayer constrained clustering")
-    val clustering = MultilayerConstrainedSpectralClustering.getClustering(adjs, constraints, 30, 0.2)
+
+    LOG.info("Calculating subspace representations for each layer with applied constraints")
+    val us = NETWORKS.zip(adjs).zip(constraints).map { case ((network, adj), q) =>
+        readOrCalcBasis(network, adj, q)
+    }
+    val u = MultilayerConstrainedSpectralClustering.combineLayers(adjs, us, k, alpha)
+
+    val clustering = KMeans.getClustering(u, k)
     logStats(clustering)
+  }
+
+  private def readConstraintsMatrix(fileName: String, hashes: Seq[String]): DoubleMatrix = {
+    val constraintsFile = new File(CONSTRAINTS_DIR, fileName)
+    val graph = GraphFactory.readGraph(constraintsFile)
+    val q = adjMatrix(graph, hashes)
+    q
+  }
+
+  private def readOrCalcBasis(network: String, adj: DoubleMatrix, q: DoubleMatrix): DoubleMatrix = {
+    val file = new File(SUBSPACE_DIR, s"k$k-$network.csv")
+    if (file.exists()) {
+      LOG.info(s"File with subspace representation found: $file")
+      readBasis(file)
+    } else {
+      LOG.info(s"Calculating subspace representation for $network")
+      val u = ConstrainedSpectralClustering.toEigenspace(adj, q, k)
+      LOG.info(s"Writing subspace representation to file: $file")
+      file.getParentFile.mkdirs()
+      u.write(file)
+      u
+    }
+  }
+
+  private def readBasis(file: File): DoubleMatrix = {
+    val source = io.Source.fromFile(file)
+    try {
+      val lines = source.getLines
+      val data = lines.map { line =>
+        line.split(",").map(_.trim).map(_.toDouble).array
+      }.toArray
+      new DoubleMatrix(data)
+    } finally {
+      source.close()
+    }
   }
 
   private def adjMatrix(graph: Graph[String, Edge], hashes: Seq[String]): DoubleMatrix = {
