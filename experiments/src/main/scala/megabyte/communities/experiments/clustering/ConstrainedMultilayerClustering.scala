@@ -31,7 +31,7 @@ object ConstrainedMultilayerClustering {
   private val CONSTRAINTS_DIR = new File(s"$BASE_DIR/$CITY/graphs/connections")
   private val SUBSPACE_DIR = new File(BASE_DIR, s"$CITY/subspaces/constrained")
 
-  private val k = 30
+  private val k = 2
   private val alpha = 0.2
 
   private val NETWORKS = Seq(
@@ -50,9 +50,9 @@ object ConstrainedMultilayerClustering {
     }.seq
 
     LOG.info("Calculating subspace representations for each layer with applied constraints")
-    val us = NETWORKS.zip(adjs).zip(constraints).map { case ((network, adj), q) =>
+    val us = NETWORKS.zip(adjs).zip(constraints).par.map { case ((network, adj), q) =>
         readOrCalcBasis(network, adj, q)
-    }
+    }.seq
     val u = MultilayerConstrainedSpectralClustering.combineLayers(adjs, us, k, alpha)
 
     val clustering = KMeans.getClustering(u, k)
