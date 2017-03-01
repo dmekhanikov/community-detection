@@ -42,7 +42,6 @@ object ConstrainedSpectralClustering {
       (v.transpose() * lNorm * v).get(0)
     }
     val indices = costs.zipWithIndex
-      .filter(_._1 > 1e-10)
       .sorted
       .map(_._2)
     dNorm * feasibleVectors.getColumns(indices.toArray)
