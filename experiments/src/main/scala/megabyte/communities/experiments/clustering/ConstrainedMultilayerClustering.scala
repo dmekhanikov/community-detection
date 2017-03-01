@@ -76,7 +76,7 @@ object ConstrainedMultilayerClustering {
       val u = ConstrainedSpectralClustering.toEigenspace(adj, q)
       LOG.info(s"Writing subspace representation to file: $file")
       file.getParentFile.mkdirs()
-      u.write(file)
+      u.write(file, lossless = true)
       u
     }
     u.getColumns(interval(0, k - 1))

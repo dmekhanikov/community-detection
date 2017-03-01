@@ -53,7 +53,7 @@ object SimilarityGraphConstructor {
       val adj = calcAdjMatrix(users, numeration)
       val outFile = new File(GRAPHS_DIR, s"$network.csv")
       LOG.info(s"Writing result for $network to $outFile")
-      adj.write(numeration, outFile)
+      adj.write(outFile, header = Some(numeration))
     }
     LOG.info("Finished, exiting")
   }

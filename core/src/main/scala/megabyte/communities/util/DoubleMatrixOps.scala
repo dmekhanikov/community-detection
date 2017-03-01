@@ -98,29 +98,30 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
     (0 until self.columns).map(i => self.get(i, i))
   }
 
-  def write(file: File): Unit = {
+  def write(file: File, header: Option[Seq[String]] = None, lossless: Boolean = false): Unit = {
     val writer = new BufferedWriter(new FileWriter(file))
     try {
-      self.write(writer)
+      self.write(writer, header, lossless)
     } finally {
       writer.close()
     }
   }
 
-  def write(header: Seq[String], file: File): Unit = {
-    val writer = new BufferedWriter(new FileWriter(file))
-    try {
-      writer.write(header.mkString(",") + "\n")
-      self.write(writer)
-    } finally {
-      writer.close()
-    }
-  }
-
-  def write(writer: Writer): Unit = {
+  def write(writer: Writer, header: Option[Seq[String]], lossless: Boolean): Unit = {
     Locale.setDefault(Locale.US)
-    val adjText = self.toString("%.10f", "", "", ",", "\n")
-    writer.write(adjText)
+    for (h <- header) {
+      writer.write(h.mkString(",") + "\n")
+    }
+    val text = if (lossless) {
+      (0 until self.rows).map { i =>
+        (0 until self.columns).map { j =>
+          BigDecimal(self.get(i, j)).toString()
+        }.mkString(",")
+      }.mkString("\n")
+    } else {
+      self.toString("%.10f", "", "", ",", "\n")
+    }
+    writer.write(text)
   }
 }
 
