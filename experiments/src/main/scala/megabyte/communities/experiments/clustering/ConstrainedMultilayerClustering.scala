@@ -10,10 +10,10 @@ import edu.uci.ics.jung.graph.util.EdgeType
 import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, MultilayerConstrainedSpectralClustering}
 import megabyte.communities.algo.points.KMeans
 import megabyte.communities.entities.Edge
-import megabyte.communities.experiments.clustering.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory
+import megabyte.communities.util.IO._
 import org.jblas.DoubleMatrix
 
 import scala.collection.JavaConversions._

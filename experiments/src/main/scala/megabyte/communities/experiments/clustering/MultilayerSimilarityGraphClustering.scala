@@ -5,10 +5,10 @@ import java.io.File
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
 import megabyte.communities.algo.points.XMeans
-import megabyte.communities.experiments.clustering.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig
-import megabyte.communities.util.Graphs
 import megabyte.communities.util.DoubleMatrixOps._
+import megabyte.communities.util.Graphs
+import megabyte.communities.util.IO._
 
 private class MultilayerSimilarityGraphClustering
 
