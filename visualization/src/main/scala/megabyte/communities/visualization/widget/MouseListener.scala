@@ -1,4 +1,4 @@
-package megabyte.communities.examples.widget
+package megabyte.communities.visualization.widget
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.SwingUtilities

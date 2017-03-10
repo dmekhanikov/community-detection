@@ -1,4 +1,4 @@
-package megabyte.communities.examples.widget
+package megabyte.communities.visualization.widget
 
 import java.awt.{BasicStroke, Color, Graphics, Graphics2D}
 import javax.swing.{JFrame, JPanel}

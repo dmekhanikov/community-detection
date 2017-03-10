@@ -1,4 +1,4 @@
-package megabyte.communities.examples
+package megabyte.communities.visualization
 
 import java.io.FileNotFoundException
 

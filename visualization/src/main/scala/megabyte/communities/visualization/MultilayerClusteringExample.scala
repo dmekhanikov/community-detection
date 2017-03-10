@@ -1,8 +1,8 @@
-package megabyte.communities.examples
+package megabyte.communities.visualization
 
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
-import megabyte.communities.examples.Util._
-import megabyte.communities.examples.widget.PointsPane
+import megabyte.communities.visualization.Util._
+import megabyte.communities.visualization.widget.PointsPane
 import megabyte.communities.util.DataTransformer._
 import org.jblas.DoubleMatrix
 

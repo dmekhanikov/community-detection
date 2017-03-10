@@ -6,11 +6,11 @@ version in ThisBuild := "1.0"
 
 scalaVersion in ThisBuild := "2.11.8"
 
-lazy val root = project.in(file(".")).aggregate(core, examples, experiments)
+lazy val root = project.in(file(".")).aggregate(core, visualization, experiments)
 
 lazy val core = project
 
-lazy val examples = project.dependsOn(core)
+lazy val visualization = project.dependsOn(core)
 
 lazy val experiments = project.dependsOn(core)
 
