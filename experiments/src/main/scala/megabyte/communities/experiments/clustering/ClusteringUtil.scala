@@ -4,6 +4,7 @@ import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.SpectralClustering
+import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Measures.modularity
 import org.jblas.DoubleMatrix
 
@@ -41,5 +42,32 @@ object ClusteringUtil {
       line.split(",").map(_.trim).map(_.toDouble).array
     }.toArray
     (header, new DoubleMatrix(data))
+  }
+
+  def readMatrix(file: File): DoubleMatrix = {
+    val source = io.Source.fromFile(file)
+    try {
+      val lines = source.getLines
+      val data = lines.map { line =>
+        line.split(",").map(_.trim).map(_.toDouble).array
+      }.toArray
+      new DoubleMatrix(data)
+    } finally {
+      source.close()
+    }
+  }
+
+  def readOrCalcMatrix(file: File)(calculator: => DoubleMatrix): DoubleMatrix = {
+    if (file.exists()) {
+      LOG.info(s"File with a matrix found: $file")
+      readMatrix(file)
+    } else {
+      LOG.info(s"File with a matrix not found: $file. Calculating...")
+      val m = calculator
+      LOG.info(s"Writing a calculated matrix to file: $file")
+      file.getParentFile.mkdirs()
+      m.write(file, lossless = true)
+      m
+    }
   }
 }

@@ -7,13 +7,11 @@ import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 import org.jblas.DoubleMatrix._
 import org.jblas.Eigen._
-import org.jblas.ranges.RangeUtils.interval
 
 object ConstrainedSpectralClustering {
 
   def getClustering(adj: DoubleMatrix, constraints: DoubleMatrix, k: Int): Seq[Int] = {
-    val u = toEigenspace(adj, constraints)
-      .getColumns(interval(0, k - 1))
+    val u = toEigenspace(adj, constraints).prefixColumns(k)
     KMeans.getClustering(u, k)
   }
 

@@ -5,6 +5,7 @@ import java.util.Locale
 
 import megabyte.communities.util.DoubleMatrixOps._
 import org.jblas.DoubleMatrix
+import org.jblas.ranges.RangeUtils.interval
 
 final class DoubleMatrixOps(val self: DoubleMatrix) {
   def +(other: DoubleMatrix): DoubleMatrix = self.add(other)
@@ -86,6 +87,10 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
       self.put(i, i, Math.sqrt(v))
     }
     self
+  }
+
+  def prefixColumns(k: Int): DoubleMatrix = {
+    self.getColumns(interval(0, k - 1))
   }
 
   def norm: Double = self.norm2

@@ -25,34 +25,42 @@ object MultilayerSpectralClustering {
     Map(numeration.zip(renumClustering): _*)
   }
 
-  def getClustering(adjMatrices: Seq[DoubleMatrix], k: Int, alpha: Double): Seq[Int] = {
+  def getClustering(adjMatrices: Seq[DoubleMatrix], dim: Int, alpha: Double): Seq[Int] = {
     LOG.info(s"Starting multilayer clustering computation")
     val lSyms = adjMatrices.map(symLaplacian)
     val us = lSyms.zipWithIndex.map { case (l, i) =>
       LOG.info(s"Starting processing layer #${i + 1}")
-      val u = toEigenspace(l, k)
+      val u = toEigenspace(l).prefixColumns(dim)
       LOG.info(s"${i + 1} / ${adjMatrices.size} layers processed")
       u
     }
+    val u = toCommonEigenspace(lSyms, us, dim, alpha)
+    LOG.info("Running a final step clustering")
+    XMeans.getClustering(u)
+  }
+
+  def getLMod(us: Seq[DoubleMatrix], lSyms: Seq[DoubleMatrix], dim: Int, alpha: Double): DoubleMatrix = {
     LOG.info("Building modified Laplacian matrix")
-    val n = adjMatrices.head.rows
+    val n = lSyms.head.rows
     val lMod = new DoubleMatrix(n, n)
     lSyms.zip(us).foreach { case (li, ui) =>
       lMod += (li -= ((ui * ui.transpose()) *= alpha))
     }
-    LOG.info("Running spectral clustering on the modified Laplacian matrix")
-    val u = toEigenspace(lMod, k).normRowsI()
-    XMeans.getClustering(u)
+    lMod
   }
 
-  def toEigenspace(matrix: DoubleMatrix, dim: Int): DoubleMatrix = {
+  def toCommonEigenspace(us: Seq[DoubleMatrix], lSyms: Seq[DoubleMatrix], dim: Int, alpha: Double): DoubleMatrix = {
+    val lMod = getLMod(us, lSyms, dim, alpha)
+    LOG.info("Searching for eigenvectors of the modified Laplacian matrix")
+    toEigenspace(lMod).prefixColumns(dim).normRowsI()
+  }
+
+  def toEigenspace(matrix: DoubleMatrix): DoubleMatrix = {
     val Array(vectors, valuesMatrix) = Eigen.symmetricEigenvectors(matrix)
-    // sort by values and take first k
     val indices = valuesMatrix
       .diagonalElements()
       .zipWithIndex
       .sortBy(_._1)
-      .take(dim)
       .map(_._2)
       .toArray
     vectors.getColumns(indices)

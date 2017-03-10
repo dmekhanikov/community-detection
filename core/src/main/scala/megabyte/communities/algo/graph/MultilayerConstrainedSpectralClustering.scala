@@ -5,7 +5,6 @@ import megabyte.communities.algo.points.KMeans
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
-import org.jblas.ranges.RangeUtils.interval
 
 private class MultilayerConstrainedSpectralClustering
 
@@ -28,7 +27,7 @@ object MultilayerConstrainedSpectralClustering {
     LOG.info("Processing constraints")
     val us = adjMatrices.zip(constraints).zipWithIndex.map { case ((adj, q), i) =>
       val u = ConstrainedSpectralClustering.toEigenspace(adj, q)
-        .getColumns(interval(0, k))
+        .prefixColumns(k)
       LOG.info(s"Processed constraints on layer #${i + 1}/${adjMatrices.size}")
       u
     }
@@ -46,6 +45,6 @@ object MultilayerConstrainedSpectralClustering {
     lSyms.zip(us).foreach { case (li, ui) =>
       lMod += (li -= ((ui * ui.transpose()) *= alpha))
     }
-    MultilayerSpectralClustering.toEigenspace(lMod, k - 1).normRowsI()
+    MultilayerSpectralClustering.toEigenspace(lMod).prefixColumns(k).normRowsI()
   }
 }
