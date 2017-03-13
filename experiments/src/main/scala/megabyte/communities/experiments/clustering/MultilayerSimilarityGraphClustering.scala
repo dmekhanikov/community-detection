@@ -9,6 +9,7 @@ import megabyte.communities.experiments.config.ExperimentConfig
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs
 import megabyte.communities.util.IO._
+import org.jblas.DoubleMatrix
 
 private class MultilayerSimilarityGraphClustering
 
@@ -30,6 +31,12 @@ object MultilayerSimilarityGraphClustering {
   private val alpha = 0.2
 
   def main(args: Array[String]): Unit = {
+    val u = subspace()
+    val clustering = XMeans.getClustering(u)
+    logStats(clustering)
+  }
+
+  def subspace(): DoubleMatrix = {
     val adjs = INPUT_FILES.par.map { fileName =>
       readDataFile(new File(GRAPHS_DIR, fileName))._2
     }.seq
@@ -41,9 +48,7 @@ object MultilayerSimilarityGraphClustering {
           MultilayerSpectralClustering.toEigenspace(l)
         }.prefixColumns(k)
       }
-    val u = MultilayerSpectralClustering.toCommonEigenspace(us, lSyms, k, alpha)
-    val clustering = XMeans.getClustering(u)
-    logStats(clustering)
+    MultilayerSpectralClustering.toCommonEigenspace(us, lSyms, k, alpha)
   }
 
   private def logStats(clustering: Seq[Int]): Unit = {

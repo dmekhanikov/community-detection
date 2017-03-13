@@ -20,8 +20,7 @@ val versions = new {
 }
 
 libraryDependencies in experiments ++= Seq(
-  "org.mongodb" % "mongo-java-driver" % "3.4.1",
-  "org.apache.commons" % "commons-csv" % "1.4"
+  "org.mongodb" % "mongo-java-driver" % "3.4.1"
 )
 
 libraryDependencies in ThisBuild ++= Seq(
@@ -37,7 +36,9 @@ libraryDependencies in ThisBuild ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
 
   "org.scalactic" %% "scalactic" % "3.0.1",
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+
+  "org.apache.commons" % "commons-csv" % "1.4"
 )
 
 scalacOptions += "-feature"

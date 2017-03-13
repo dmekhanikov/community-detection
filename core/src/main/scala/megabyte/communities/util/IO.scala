@@ -1,10 +1,15 @@
 package megabyte.communities.util
 
-import java.io.File
+import java.io.{BufferedReader, File, FileReader}
 
 import com.typesafe.scalalogging.Logger
 import org.jblas.DoubleMatrix
 import DoubleMatrixOps._
+import org.apache.commons.csv.CSVFormat
+import weka.core.Instances
+import weka.core.converters.ArffSaver
+
+import scala.collection.JavaConversions._
 
 private class IO
 
@@ -48,5 +53,23 @@ object IO {
       m.write(file, lossless = true)
       m
     }
+  }
+
+  def readCSV(file: File): Seq[Map[String, String]] = {
+    val reader = new FileReader(file)
+    val parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)
+    try {
+      parser.map(_.toMap.toMap).toSeq // first toMap makes util.Map, second - immutable.Map
+    } finally {
+      parser.close()
+      reader.close()
+    }
+  }
+
+  def writeInstances(instances: Instances, file: File): Unit = {
+    val saver = new ArffSaver()
+    saver.setInstances(instances)
+    saver.setFile(file)
+    saver.writeBatch()
   }
 }
