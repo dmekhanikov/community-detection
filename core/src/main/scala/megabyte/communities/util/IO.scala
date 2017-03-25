@@ -3,9 +3,9 @@ package megabyte.communities.util
 import java.io.{BufferedReader, File, FileReader}
 
 import com.typesafe.scalalogging.Logger
-import org.jblas.DoubleMatrix
-import DoubleMatrixOps._
+import megabyte.communities.util.DoubleMatrixOps._
 import org.apache.commons.csv.CSVFormat
+import org.jblas.DoubleMatrix
 import weka.core.Instances
 import weka.core.converters.ArffSaver
 
@@ -62,6 +62,15 @@ object IO {
       parser.map(_.toMap.toMap).toSeq // first toMap makes util.Map, second - immutable.Map
     } finally {
       parser.close()
+      reader.close()
+    }
+  }
+
+  def readInstances(file: File): Instances = {
+    val reader = new BufferedReader(new FileReader(file))
+    try {
+      new Instances(reader)
+    } finally {
       reader.close()
     }
   }

@@ -6,6 +6,7 @@ import org.jblas.DoubleMatrix
 import weka.core.{Attribute, DenseInstance, Instances}
 
 import scala.collection.GenSeq
+import scala.collection.JavaConversions._
 
 object DataTransformer {
 
@@ -23,9 +24,9 @@ object DataTransformer {
     instances
   }
 
-  def constructInstances(features: DoubleMatrix, labels: GenSeq[String]): Instances = {
+  def constructInstances(features: DoubleMatrix, labelValues: Seq[String], labels: GenSeq[String]): Instances = {
     val attributes = makeAttributes(features.columns)
-    val labelAttr = new Attribute("label", true)
+    val labelAttr = new Attribute("label", labelValues, features.columns)
     attributes.add(labelAttr)
     val instances = new Instances("Instances", attributes, labels.size)
     for (i <- 0 until features.rows) {

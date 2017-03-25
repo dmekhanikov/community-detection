@@ -30,6 +30,8 @@ object WekaInstancesConstructor {
   private val TRAIN_FILE = new File(LABELS_DIR, "train.arff")
   private val TEST_FILE = new File(LABELS_DIR, "test.arff")
 
+  private val GENDER_VALUES = Seq("male", "female")
+
   def main(args: Array[String]): Unit = {
     val (trainInstances, testInstances) = dataset()
     LOG.info(s"Writing arff file with train data to $TRAIN_FILE")
@@ -39,9 +41,10 @@ object WekaInstancesConstructor {
   }
 
   private def dataset(): (Instances, Instances) = {
-    val allLabels = IO.readCSV(LABELS_FILE).map { m =>
-      m(ID_COL) -> m(GENDER_COL)
-    }.toMap
+    val allLabels = IO.readCSV(LABELS_FILE)
+      .map(m => m(ID_COL) -> m(GENDER_COL))
+      .filter { case (_, v) => v.nonEmpty }
+      .toMap
 
     val numeration = readNumeration(GRAPH_FILE).filter(allLabels.contains)
     val permutation = Random.shuffle[Int, IndexedSeq](numeration.indices)
@@ -62,8 +65,8 @@ object WekaInstancesConstructor {
     val trainFeatures = getFeatures(trainIndices)
     val testFeatures = getFeatures(testIndices)
 
-    val trainInstances = DataTransformer.constructInstances(trainFeatures, trainLabels)
-    val testInstances = DataTransformer.constructInstances(testFeatures, testLabels)
+    val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
+    val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
     (trainInstances, testInstances)
   }
 
