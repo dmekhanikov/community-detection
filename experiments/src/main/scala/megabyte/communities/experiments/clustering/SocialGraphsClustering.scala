@@ -4,7 +4,7 @@ import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.clustering.ClusteringUtil._
-import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory
 import megabyte.communities.util.Graphs._
@@ -16,14 +16,11 @@ private class SocialGraphsClustering
 
 object SocialGraphsClustering {
 
-  private val CITY = ExperimentConfig.config.city
-  private val BASE_DIR = ExperimentConfig.config.baseDir
-  private val GRAPHS_DIR = new File(s"$BASE_DIR/$CITY/graphs/connections")
   private val LOG = Logger[SocialGraphsClustering]
 
   def main(args: Array[String]): Unit = {
     val graphs = Seq("twitter", "instagram", "foursquare")
-      .map(name => GraphFactory.readGraph(new File(GRAPHS_DIR, s"$name.graphml")))
+      .map(name => GraphFactory.readGraph(new File(graphsDir, s"$name.graphml")))
     val numeration = graphs.flatMap(_.getVertices).toSet.toList
     val n = numeration.size
     val adjs = graphs.map(g => symAdjacencyMatrix(applyNumeration(g, numeration), n))

@@ -4,7 +4,7 @@ import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.clustering.MultilayerSimilarityGraphClustering
-import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.{DataTransformer, IO}
 import org.jblas.DoubleMatrix
 import weka.core.Instances
@@ -22,31 +22,27 @@ object WekaInstancesConstructor {
   private val GENDER_COL = "gender"
   private val testFraction = 0.1
 
-  private val BASE_DIR = ExperimentConfig.config.baseDir
-  private val CITY = ExperimentConfig.config.city
-  private val GRAPH_FILE = new File(BASE_DIR, s"$CITY/graphs/similarity/twitter.csv")
-  private val LABELS_DIR = new File(BASE_DIR, s"$CITY/labels")
-  private val LABELS_FILE = new File(LABELS_DIR, s"${CITY}GroundTruth.csv")
-  private val TRAIN_FILE = new File(LABELS_DIR, "train.arff")
-  private val TEST_FILE = new File(LABELS_DIR, "test.arff")
+  private val graphFile = new File(baseDir, s"$city/graphs/similarity/twitter.csv")
+  private val trainFile = new File(labelsDir, "train.arff")
+  private val testFile = new File(labelsDir, "test.arff")
 
   private val GENDER_VALUES = Seq("male", "female")
 
   def main(args: Array[String]): Unit = {
     val (trainInstances, testInstances) = dataset()
-    LOG.info(s"Writing arff file with train data to $TRAIN_FILE")
-    IO.writeInstances(trainInstances, TRAIN_FILE)
-    LOG.info(s"Writing arff file with test data to $TEST_FILE")
-    IO.writeInstances(testInstances, TEST_FILE)
+    LOG.info(s"Writing arff file with train data to $trainFile")
+    IO.writeInstances(trainInstances, trainFile)
+    LOG.info(s"Writing arff file with test data to $testFile")
+    IO.writeInstances(testInstances, testFile)
   }
 
   private def dataset(): (Instances, Instances) = {
-    val allLabels = IO.readCSV(LABELS_FILE)
+    val allLabels = IO.readCSV(labelsFile)
       .map(m => m(ID_COL) -> m(GENDER_COL))
       .filter { case (_, v) => v.nonEmpty }
       .toMap
 
-    val numeration = readNumeration(GRAPH_FILE).filter(allLabels.contains)
+    val numeration = readNumeration(graphFile).filter(allLabels.contains)
     val permutation = Random.shuffle[Int, IndexedSeq](numeration.indices)
     val testSize = (numeration.size * testFraction).toInt
     val testIndices = permutation.take(testSize)

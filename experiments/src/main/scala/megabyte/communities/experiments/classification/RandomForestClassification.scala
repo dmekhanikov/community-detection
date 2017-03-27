@@ -4,7 +4,7 @@ import java.io.File
 import java.util.Random
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.IO
 import weka.classifiers.Evaluation
 import weka.classifiers.trees.RandomForest
@@ -17,15 +17,12 @@ object RandomForestClassification {
 
   private val FOLDS = 10
 
-  private val BASE_DIR = ExperimentConfig.config.baseDir
-  private val CITY = ExperimentConfig.config.city
-  private val LABELS_DIR = new File(s"$BASE_DIR/$CITY/labels")
-  private val TRAIN_FILE = new File(LABELS_DIR, "train.arff")
-  private val TEST_FILE = new File(LABELS_DIR, "test.arff")
+  private val trainFile = new File(labelsDir, "train.arff")
+  private val testFile = new File(labelsDir, "test.arff")
 
   def main(args: Array[String]): Unit = {
-    val trainData = IO.readInstances(TRAIN_FILE)
-    val testData = IO.readInstances(TEST_FILE)
+    val trainData = IO.readInstances(trainFile)
+    val testData = IO.readInstances(testFile)
     trainData.setClassIndex(trainData.numAttributes() - 1)
 
     val randomForest = new RandomForest()

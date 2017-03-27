@@ -5,7 +5,7 @@ import java.io.File
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
 import megabyte.communities.algo.points.XMeans
-import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs
 import megabyte.communities.util.IO._
@@ -16,11 +16,6 @@ private class MultilayerSimilarityGraphClustering
 object MultilayerSimilarityGraphClustering {
 
   private val LOG = Logger[MultilayerSimilarityGraphClustering]
-
-  private val BASE_DIR = ExperimentConfig.config.baseDir
-  private val CITY = ExperimentConfig.config.city
-  private val GRAPHS_DIR = new File(s"$BASE_DIR/$CITY/graphs/similarity")
-  private val SUBSPACE_DIR = new File(BASE_DIR, s"$CITY/subspaces/sym")
 
   private val INPUT_FILES = Seq(
     "foursquare.csv",
@@ -38,12 +33,12 @@ object MultilayerSimilarityGraphClustering {
 
   def subspace(): DoubleMatrix = {
     val adjs = INPUT_FILES.par.map { fileName =>
-      readDataFile(new File(GRAPHS_DIR, fileName))._2
+      readDataFile(new File(graphsDir, fileName))._2
     }.seq
     val lSyms = adjs.map(Graphs.symLaplacian)
     val us = INPUT_FILES.zip(lSyms)
       .map { case (fileName, l) =>
-        val file = new File(SUBSPACE_DIR, fileName)
+        val file = new File(subspaceDir, fileName)
         readOrCalcMatrix(file) {
           MultilayerSpectralClustering.toEigenspace(l)
         }.prefixColumns(k)

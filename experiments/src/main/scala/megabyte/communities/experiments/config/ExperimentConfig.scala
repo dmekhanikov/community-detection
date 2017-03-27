@@ -5,7 +5,14 @@ import java.util.Properties
 
 import scalaz.Scalaz._
 
-class ExperimentConfig private(val baseDir: String, val city: String, val network: Option[String])
+class ExperimentConfig private(val baseDir: String, val city: String, val network: Option[String]) {
+  val graphsDir = new File(s"$baseDir/$city/graphs/similarity")
+  val labelsDir = new File(baseDir, s"$city/labels")
+  val labelsFile = new File(labelsDir, s"${city}GroundTruth.csv")
+  val subspaceDir = new File(baseDir, s"$city/subspaces/sym")
+  val constraintsDir = new File(s"$baseDir/$city/graphs/connections")
+  val featuresDir = new File(s"$baseDir/$city/features")
+}
 
 object ExperimentConfig {
 

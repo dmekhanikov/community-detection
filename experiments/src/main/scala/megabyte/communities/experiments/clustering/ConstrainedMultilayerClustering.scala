@@ -10,7 +10,7 @@ import edu.uci.ics.jung.graph.util.EdgeType
 import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, MultilayerConstrainedSpectralClustering}
 import megabyte.communities.algo.points.KMeans
 import megabyte.communities.entities.Edge
-import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory
 import megabyte.communities.util.IO._
@@ -24,12 +24,6 @@ object ConstrainedMultilayerClustering {
 
   private val LOG = Logger[ConstrainedMultilayerClustering]
 
-  private val BASE_DIR = ExperimentConfig.config.baseDir
-  private val CITY = ExperimentConfig.config.city
-  private val GRAPHS_DIR = new File(s"$BASE_DIR/$CITY/graphs/similarity")
-  private val CONSTRAINTS_DIR = new File(s"$BASE_DIR/$CITY/graphs/connections")
-  private val SUBSPACE_DIR = new File(BASE_DIR, s"$CITY/subspaces/constrained/common")
-
   private val k = 2
   private val alpha = 0.2
 
@@ -41,16 +35,16 @@ object ConstrainedMultilayerClustering {
   def main(args: Array[String]): Unit = {
     LOG.info("Reading adjacency matrices")
     val (networksHashes, adjs) = NETWORKS.par.map { network =>
-      readDataFile(new File(GRAPHS_DIR, s"$network.csv"))
+      readDataFile(new File(graphsDir, s"$network.csv"))
     }.seq.unzip
     LOG.info("Reading constraint graphs")
-    val constraints = NETWORKS.zip(networksHashes).par.map { case (network, hashes) =>
-      readConstraintsMatrix(s"$network.graphml", hashes)
+    val constraints = NETWORKS.zip(networksHashes).par.map { case (net, hashes) =>
+      readConstraintsMatrix(s"$net.graphml", hashes)
     }.seq
 
     LOG.info("Calculating subspace representations for each layer with applied constraints")
-    val us = NETWORKS.zip(adjs).zip(constraints).par.map { case ((network, adj), q) =>
-      val file = new File(SUBSPACE_DIR, s"$network.csv")
+    val us = NETWORKS.zip(adjs).zip(constraints).par.map { case ((net, adj), q) =>
+      val file = new File(subspaceDir, s"$net.csv")
       readOrCalcMatrix(file) {
         ConstrainedSpectralClustering.toEigenspace(adj, q)
       }.prefixColumns(k)
@@ -62,7 +56,7 @@ object ConstrainedMultilayerClustering {
   }
 
   private def readConstraintsMatrix(fileName: String, hashes: Seq[String]): DoubleMatrix = {
-    val constraintsFile = new File(CONSTRAINTS_DIR, fileName)
+    val constraintsFile = new File(constraintsDir, fileName)
     val graph = GraphFactory.readGraph(constraintsFile)
     val q = adjMatrix(graph, hashes)
     q

@@ -3,7 +3,7 @@ package megabyte.communities.experiments.transformer
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.experiments.config.ExperimentConfig
+import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Measures
 import org.jblas.DoubleMatrix
@@ -16,10 +16,6 @@ object SimilarityGraphConstructor {
 
   private val LOG = Logger[SimilarityGraphConstructor]
 
-  private val BASE_DIR = ExperimentConfig.config.baseDir
-  private val CITY = ExperimentConfig.config.city
-  private val FEATURES_DIR = new File(s"$BASE_DIR/$CITY/features")
-  private val GRAPHS_DIR = new File(s"$BASE_DIR/$CITY/graphs/similarity")
   private val NETWORKS = Seq(
     ("twitter", Seq("LDA50Features.csv", "LIWCFeatures.csv", "manuallyDefinedTextFeatures.csv")),
     ("instagram", Seq("imageConceptsFeatures.csv")),
@@ -33,7 +29,7 @@ object SimilarityGraphConstructor {
   def main(args: Array[String]): Unit = {
     val networksData: Seq[(String, Seq[Users])] =
       NETWORKS.map { case (networkName, files) =>
-        (networkName, files.map { file => readDataFile(new File(FEATURES_DIR, s"$networkName/$file")) })
+        (networkName, files.map { file => readDataFile(new File(featuresDir, s"$networkName/$file")) })
       }
     val usersIntersection = findUsersIntersection(networksData.flatMap(_._2))
     LOG.info("Merging features")
@@ -48,11 +44,11 @@ object SimilarityGraphConstructor {
       normalizeFeatures
     }
     val numeration = usersIntersection.toSeq
-    normalizedData.par.foreach { case (network, users) =>
-      LOG.info(s"Calculating adjacency matrix for $network")
+    normalizedData.par.foreach { case (net, users) =>
+      LOG.info(s"Calculating adjacency matrix for $net")
       val adj = calcAdjMatrix(users, numeration)
-      val outFile = new File(GRAPHS_DIR, s"$network.csv")
-      LOG.info(s"Writing result for $network to $outFile")
+      val outFile = new File(graphsDir, s"$net.csv")
+      LOG.info(s"Writing result for $net to $outFile")
       adj.write(outFile, header = Some(numeration))
     }
     LOG.info("Finished, exiting")
