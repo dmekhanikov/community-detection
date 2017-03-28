@@ -1,15 +1,15 @@
-package megabyte.communities.experiments.clustering
+package megabyte.communities.experiments
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.util.Measures.modularity
 import org.jblas.DoubleMatrix
 
-private class ClusteringUtil
+private class Util
 
-object ClusteringUtil {
+object Util {
 
-  private val LOG = Logger[ClusteringUtil]
+  private val LOG = Logger[Util]
 
   def optimizeClustersCount(adj: DoubleMatrix, start: Int, end: Int): (Int, Seq[Int]) = {
     (start to end)
