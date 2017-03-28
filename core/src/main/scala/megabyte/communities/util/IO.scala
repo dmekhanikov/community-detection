@@ -66,6 +66,15 @@ object IO {
     }
   }
 
+  def readHeader(file: File): Seq[String] = {
+    val source = io.Source.fromFile(file)
+    try {
+      source.getLines().next().split(',')
+    } finally {
+      source.close()
+    }
+  }
+
   def readInstances(file: File): Instances = {
     val reader = new BufferedReader(new FileReader(file))
     try {

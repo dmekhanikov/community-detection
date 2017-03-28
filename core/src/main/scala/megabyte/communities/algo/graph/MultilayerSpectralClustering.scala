@@ -43,9 +43,11 @@ object MultilayerSpectralClustering {
     LOG.info("Building modified Laplacian matrix")
     val n = lSyms.head.rows
     val lMod = new DoubleMatrix(n, n)
-    lSyms.zip(us).foreach { case (li, ui) =>
-      lMod += (li -= ((ui * ui.transpose()) *= alpha))
-    }
+    lSyms
+      .zip(us.map(u => u.prefixColumns(dim)))
+      .foreach { case (li, ui) =>
+        lMod += (li -= ((ui * ui.transpose()) *= alpha))
+      }
     lMod
   }
 
