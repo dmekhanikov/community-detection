@@ -1,6 +1,6 @@
 package megabyte.communities.util
 
-import java.io.{BufferedReader, File, FileReader}
+import java.io._
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.util.DoubleMatrixOps._
@@ -89,5 +89,18 @@ object IO {
     saver.setInstances(instances)
     saver.setFile(file)
     saver.writeBatch()
+  }
+
+  def writeRelation(header: Seq[String], relation: Seq[(Int, Double, Double)], file: File): Unit = {
+    file.getParentFile.mkdirs()
+    val writer = new PrintWriter(file)
+    try {
+      writer.println(header.mkString(","))
+      for ((k, alpha, fMeasure) <- relation) {
+        writer.println(s"$k,$alpha,$fMeasure")
+      }
+    } finally {
+      writer.close()
+    }
   }
 }

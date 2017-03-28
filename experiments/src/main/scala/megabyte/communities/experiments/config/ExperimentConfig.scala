@@ -6,12 +6,15 @@ import java.util.Properties
 import scalaz.Scalaz._
 
 class ExperimentConfig private(val baseDir: String, val city: String, val network: Option[String]) {
-  val graphsDir = new File(s"$baseDir/$city/graphs/similarity")
-  val labelsDir = new File(baseDir, s"$city/labels")
+  val cityDir = new File(baseDir, city)
+  val graphsDir = new File(cityDir, "graphs")
+  val similarityGraphsDir = new File(graphsDir, "similarity")
+  val labelsDir = new File(cityDir, "labels")
   val labelsFile = new File(labelsDir, s"${city}GroundTruth.csv")
-  val subspaceDir = new File(baseDir, s"$city/subspaces/sym")
-  val constraintsDir = new File(s"$baseDir/$city/graphs/connections")
-  val featuresDir = new File(s"$baseDir/$city/features")
+  val subspaceDir = new File(cityDir, "subspaces/sym")
+  val socialGraphsDir = new File(graphsDir, "connections")
+  val featuresDir = new File(cityDir, "features")
+  val relationsDir = new File(cityDir, "relations")
 }
 
 object ExperimentConfig {

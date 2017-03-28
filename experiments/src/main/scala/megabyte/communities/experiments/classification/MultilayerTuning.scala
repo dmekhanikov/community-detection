@@ -16,18 +16,18 @@ class MultilayerTuning
 
 object MultilayerTuning {
 
-
   private val LOG = Logger[MultilayerTuning]
 
   private val TEST_FRACTION = 0.1
-  private val graphFile = new File(graphsDir, "twitter.csv")
+  private val graphFile = new File(similarityGraphsDir, "twitter.csv")
+  private val relationFile = new File(relationsDir, "multilayer.csv")
   private val NETWORKS = Seq(
     "foursquare",
     "twitter",
     "instagram")
 
   private val adjs = NETWORKS.par.map { fileName =>
-    readDataFile(new File(graphsDir, fileName + ".csv"))._2
+    readDataFile(new File(similarityGraphsDir, fileName + ".csv"))._2
   }.seq
   private val lSyms = adjs.map(Graphs.symLaplacian)
   private val us = NETWORKS.zip(lSyms)
@@ -48,14 +48,16 @@ object MultilayerTuning {
     val testLabels = getLabels(testIndices, numeration, allLabels)
     val trainLabels = getLabels(trainIndices, numeration, allLabels)
 
-    val (k, alpha, fMeasure) = tuneParameters(trainIndices, trainLabels, testIndices, testLabels)
+    val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels)
+    IO.writeRelation(Seq("k", "alpha", "F-measure"), relation, relationFile)
+    val (k, alpha, fMeasure) = relation.maxBy(_._3)
     LOG.info("Best solution:")
     logResult(k, alpha, fMeasure)
   }
 
-  private def tuneParameters(trainIndices: Seq[Int], trainLabels: Seq[String],
-                                    testIndices: Seq[Int], testLabels: Seq[String]): (Int, Double, Double) = {
-    (for (k <- 2 to 100; alpha <- 0.1 to 1 by 0.1) yield {
+  private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
+                                    testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double, Double)] = {
+    for (k <- 2 to 100; alpha <- 0.1 to 1 by 0.1) yield {
       LOG.info(s"evaluating k=$k; alpha=$alpha")
       val allFeatures = featuresMatrix(k, alpha)
       val trainFeatures = allFeatures.getRows(trainIndices.toArray)
@@ -66,7 +68,7 @@ object MultilayerTuning {
       val fMeasure = RandomForestClassification.evaluate(trainInstances, testInstances)
       logResult(k, alpha, fMeasure)
       (k, alpha, fMeasure)
-    }).maxBy(_._3)
+    }
   }
 
   private def logResult(k: Int, alpha: Double, fMeasure: Double): Unit = {

@@ -33,7 +33,7 @@ object MultilayerSimilarityGraphClustering {
 
   def subspace(): DoubleMatrix = {
     val adjs = INPUT_FILES.par.map { fileName =>
-      readDataFile(new File(graphsDir, fileName))._2
+      readDataFile(new File(similarityGraphsDir, fileName))._2
     }.seq
     val lSyms = adjs.map(Graphs.symLaplacian)
     val us = INPUT_FILES.zip(lSyms)

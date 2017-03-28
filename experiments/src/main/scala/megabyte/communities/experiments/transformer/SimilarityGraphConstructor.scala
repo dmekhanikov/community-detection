@@ -47,7 +47,7 @@ object SimilarityGraphConstructor {
     normalizedData.par.foreach { case (net, users) =>
       LOG.info(s"Calculating adjacency matrix for $net")
       val adj = calcAdjMatrix(users, numeration)
-      val outFile = new File(graphsDir, s"$net.csv")
+      val outFile = new File(similarityGraphsDir, s"$net.csv")
       LOG.info(s"Writing result for $net to $outFile")
       adj.write(outFile, header = Some(numeration))
     }
