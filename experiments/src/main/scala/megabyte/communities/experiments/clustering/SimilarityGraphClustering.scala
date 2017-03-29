@@ -16,7 +16,7 @@ object SimilarityGraphClustering {
   private val adjFile = new File(s"$baseDir/$city/graphs/similarity/$network.csv")
 
   def main(args: Array[String]): Unit = {
-    val (_, adj) = readDataFile(adjFile)
+    val (_, adj) = readMatrixWithHeader(adjFile)
     val (k, clusteringSeq) = optimizeClustersCount(adj, 2, 100)
     LOG.info("Best clustering:")
     logStats(adj, k, clusteringSeq)

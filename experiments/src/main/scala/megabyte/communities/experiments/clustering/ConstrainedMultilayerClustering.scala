@@ -35,7 +35,7 @@ object ConstrainedMultilayerClustering {
   def main(args: Array[String]): Unit = {
     LOG.info("Reading adjacency matrices")
     val (networksHashes, adjs) = NETWORKS.par.map { network =>
-      readDataFile(new File(similarityGraphsDir, s"$network.csv"))
+      readMatrixWithHeader(new File(similarityGraphsDir, s"$network.csv"))
     }.seq.unzip
     LOG.info("Reading constraint graphs")
     val constraints = NETWORKS.zip(networksHashes).par.map { case (net, hashes) =>

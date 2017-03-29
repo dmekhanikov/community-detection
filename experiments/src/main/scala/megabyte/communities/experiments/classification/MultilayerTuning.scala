@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
 import megabyte.communities.experiments.Util._
 import megabyte.communities.experiments.config.ExperimentConfig.config._
-import megabyte.communities.util.IO.{readDataFile, readOrCalcMatrix}
+import megabyte.communities.util.IO.{readMatrixWithHeader, readOrCalcMatrix}
 import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
 
@@ -27,7 +27,7 @@ object MultilayerTuning {
     "instagram")
 
   private val adjs = NETWORKS.par.map { fileName =>
-    readDataFile(new File(similarityGraphsDir, fileName + ".csv"))._2
+    readMatrixWithHeader(new File(similarityGraphsDir, fileName + ".csv"))._2
   }.seq
   private val lSyms = adjs.map(Graphs.symLaplacian)
   private val us = NETWORKS.zip(lSyms)

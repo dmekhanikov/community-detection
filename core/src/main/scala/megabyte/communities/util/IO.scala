@@ -17,7 +17,7 @@ object IO {
 
   private val LOG = Logger[IO]
 
-  def readDataFile(file: File): (Seq[String], DoubleMatrix) = {
+  def readMatrixWithHeader(file: File): (Seq[String], DoubleMatrix) = {
     LOG.info(s"Reading data from file $file")
     val source = io.Source.fromFile(file)
     val lines = source.getLines
