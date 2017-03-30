@@ -5,6 +5,7 @@ import java.io.File
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.util.IO
 import megabyte.communities.util.IO.readCSVToSeq
+import org.jblas.DoubleMatrix
 
 import scala.collection.TraversableLike
 import scala.collection.mutable.ArrayBuffer
@@ -103,5 +104,10 @@ object DataUtil {
       }
       mergeFeatures(unifiedUsers)
     }
+  }
+
+  def makeFeaturesMatrix(users: Users, ids: Seq[String]): DoubleMatrix = {
+    val features = ids.map(id => users(id).toArray)
+    new DoubleMatrix(features.toArray)
   }
 }
