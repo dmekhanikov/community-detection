@@ -15,6 +15,15 @@ class ExperimentConfig private(val baseDir: String, val city: String, val networ
   val socialGraphsDir = new File(graphsDir, "connections")
   val featuresDir = new File(cityDir, "features")
   val relationsDir = new File(cityDir, "relations")
+  val featureFiles: Map[String, Seq[File]] = Map(
+    ("twitter", Seq("LDA50Features", "LIWCFeatures", "manuallyDefinedTextFeatures")),
+    ("instagram", Seq("imageConceptsFeatures")),
+    ("foursquare", Seq("venueCategoriesFeatures5Months"))
+  ).map { case (net, fileNames) =>
+    net -> fileNames.map {
+      fileName => new File(featuresDir, s"$net/$fileName.csv")
+    }
+  }
 }
 
 object ExperimentConfig {

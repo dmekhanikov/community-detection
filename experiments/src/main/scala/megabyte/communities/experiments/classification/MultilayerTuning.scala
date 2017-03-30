@@ -4,7 +4,7 @@ import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
-import megabyte.communities.experiments.Util._
+import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.IO.{readMatrixWithHeader, readOrCalcMatrix}
 import megabyte.communities.util.{DataTransformer, Graphs, IO}

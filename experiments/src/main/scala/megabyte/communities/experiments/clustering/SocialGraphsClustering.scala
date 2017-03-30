@@ -3,7 +3,7 @@ package megabyte.communities.experiments.clustering
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.experiments.Util._
+import megabyte.communities.experiments.util.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.GraphFactory

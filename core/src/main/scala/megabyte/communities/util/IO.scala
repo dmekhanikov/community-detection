@@ -55,11 +55,22 @@ object IO {
     }
   }
 
-  def readCSV(file: File): Seq[Map[String, String]] = {
+  def readCSVToMap(file: File): Seq[Map[String, String]] = {
     val reader = new FileReader(file)
     val parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)
     try {
       parser.map(_.toMap.toMap).toSeq // first toMap makes util.Map, second - immutable.Map
+    } finally {
+      parser.close()
+      reader.close()
+    }
+  }
+
+  def readCSVToSeq(file: File): Seq[Seq[String]] = {
+    val reader = new FileReader(file)
+    val parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)
+    try {
+      parser.map(_.toSeq).toSeq
     } finally {
       parser.close()
       reader.close()

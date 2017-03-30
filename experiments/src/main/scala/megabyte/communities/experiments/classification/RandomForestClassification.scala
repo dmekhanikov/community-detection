@@ -32,7 +32,7 @@ object RandomForestClassification {
     evaluation.unweightedMacroFmeasure()
   }
 
-  private def getEvaluation(trainData: Instances, testData: Instances): Evaluation = {
+  def getEvaluation(trainData: Instances, testData: Instances): Evaluation = {
     val randomForest = new RandomForest()
     randomForest.buildClassifier(trainData)
     val evaluation = new Evaluation(trainData)
