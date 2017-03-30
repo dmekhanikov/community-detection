@@ -4,13 +4,11 @@ import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.MultilayerSpectralClustering
-import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.experiments.config.ExperimentConfig.config._
+import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.IO.{readMatrixWithHeader, readOrCalcMatrix}
 import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
-
-import scala.util.Random
 
 class MultilayerTuning
 
@@ -18,7 +16,6 @@ object MultilayerTuning {
 
   private val LOG = Logger[MultilayerTuning]
 
-  private val TEST_FRACTION = 0.1
   private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val relationFile = new File(relationsDir, "multilayer.csv")
   private val NETWORKS = Seq(
@@ -39,14 +36,16 @@ object MultilayerTuning {
     }
 
   def main(args: Array[String]): Unit = {
-    val allLabels = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val trainIds = IO.readLines(trainIdsFile)
+    val testIds = IO.readLines(testIdsFile)
 
-    val numeration = IO.readHeader(graphFile).filter(allLabels.contains)
-    val permutation = Random.shuffle[Int, Seq](numeration.indices)
-    val (testIndices, trainIndices) = split(permutation, TEST_FRACTION)
+    val trainLabels = trainIds.map(allLabels)
+    val testLabels = testIds.map(allLabels)
 
-    val testLabels = getLabels(testIndices, numeration, allLabels)
-    val trainLabels = getLabels(trainIndices, numeration, allLabels)
+    val allIds = IO.readHeader(graphFile)
+    val trainIndices = trainIds.map(id => allIds.indexOf(id))
+    val testIndices = testIds.map(id => allIds.indexOf(id))
 
     val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels)
     IO.writeRelation(Seq("k", "alpha", "F-measure"), relation, relationFile)
@@ -56,7 +55,7 @@ object MultilayerTuning {
   }
 
   private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
-                                    testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double, Double)] = {
+                          testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double, Double)] = {
     for (k <- 2 to 100; alpha <- 0.1 to 1 by 0.1) yield {
       LOG.info(s"evaluating k=$k; alpha=$alpha")
       val allFeatures = featuresMatrix(k, alpha)

@@ -114,4 +114,18 @@ object IO {
       writer.close()
     }
   }
+
+  def writeLines(lines: Seq[String], file: File): Unit = {
+    val writer = new PrintWriter(file)
+    try {
+      lines.foreach(writer.println)
+    } finally {
+      writer.close()
+    }
+  }
+
+  def readLines(file: File): Seq[String] = {
+    val source = io.Source.fromFile(file)
+    source.getLines().toSeq
+  }
 }

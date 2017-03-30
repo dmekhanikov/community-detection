@@ -7,6 +7,9 @@ import scalaz.Scalaz._
 
 class ExperimentConfig private(val baseDir: String, val city: String, val network: Option[String]) {
   val cityDir = new File(baseDir, city)
+  val idsDir = new File(cityDir, "ids")
+  val trainIdsFile = new File(idsDir, "train.txt")
+  val testIdsFile = new File(idsDir, "test.txt")
   val graphsDir = new File(cityDir, "graphs")
   val similarityGraphsDir = new File(graphsDir, "similarity")
   val labelsDir = new File(cityDir, "labels")

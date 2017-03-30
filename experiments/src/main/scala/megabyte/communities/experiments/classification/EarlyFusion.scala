@@ -2,16 +2,12 @@ package megabyte.communities.experiments.classification
 
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
-import megabyte.communities.util.DataTransformer
+import megabyte.communities.util.{DataTransformer, IO}
 import org.jblas.DoubleMatrix
-
-import scala.util.Random
 
 private class EarlyFusion
 
 object EarlyFusion {
-
-  private val TEST_FRACTION = 0.1
 
   def main(args: Array[String]): Unit = {
     val networkUsers: Map[String, Seq[Users]] =
@@ -21,22 +17,25 @@ object EarlyFusion {
     val concatUsers: Users = concatFeatures(normalizedData)
 
     val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
-    val numeration = concatUsers.keys.filter(allLabels.contains).toSeq
-    val permutation = Random.shuffle[Int, Seq](numeration.indices)
-    val (testIndices, trainIndices) = split(permutation, TEST_FRACTION)
+    val trainIds = IO.readLines(trainIdsFile)
+    val testIds = IO.readLines(testIdsFile)
 
-    val allFeatures = new DoubleMatrix(numeration.map(id => concatUsers(id).toArray).toArray)
+    val trainFeatures = makeFeaturesMatrix(concatUsers, trainIds)
+    val testFeatures = makeFeaturesMatrix(concatUsers, testIds)
 
-    val testLabels = getLabels(testIndices, numeration, allLabels)
-    val trainLabels = getLabels(trainIndices, numeration, allLabels)
+    val trainLabels = trainIds.map(allLabels)
+    val testLabels = testIds.map(allLabels)
 
-    val trainFeatures = allFeatures.getRows(trainIndices.toArray)
-    val testFeatures = allFeatures.getRows(testIndices.toArray)
     val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
     val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
 
     val evaluation = RandomForestClassification.getEvaluation(trainInstances, testInstances)
     RandomForestClassification.printDetailedStats(evaluation)
+  }
+
+  private def makeFeaturesMatrix(users: Users, ids: Seq[String]): DoubleMatrix = {
+    val features = ids.map(id => users(id).toArray)
+    new DoubleMatrix(features.toArray)
   }
 
   private def concatFeatures(networkUsers: Map[String, Users]): Users = {
