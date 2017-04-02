@@ -102,13 +102,14 @@ object IO {
     saver.writeBatch()
   }
 
-  def writeRelation(header: Seq[String], relation: Seq[(Int, Double, Double)], file: File): Unit = {
+  def writeRelation(header: Seq[String], relation: Seq[Product], file: File): Unit = {
     file.getParentFile.mkdirs()
     val writer = new PrintWriter(file)
     try {
       writer.println(header.mkString(","))
-      for ((k, alpha, fMeasure) <- relation) {
-        writer.println(s"$k,$alpha,$fMeasure")
+      for (element <- relation) {
+        val row = element.productIterator.mkString(",")
+        writer.println(row)
       }
     } finally {
       writer.close()

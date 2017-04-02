@@ -20,16 +20,18 @@ object SpectralClustering {
 
   def getClustering(adj: DoubleMatrix, k: Int): Seq[Int] = {
     val l = symLaplacian(adj)
-    val Array(vectors, valuesMatrix) = symmetricEigenvectors(l)
-    // sort by values and take first k
+    val u = toEigenspace(l).prefixColumns(k)
+    XMeans.getClustering(u)
+  }
+
+  def toEigenspace(matrix: DoubleMatrix): DoubleMatrix = {
+    val Array(vectors, valuesMatrix) = symmetricEigenvectors(matrix)
     val indices = valuesMatrix
       .diagonalElements()
       .zipWithIndex
       .sortBy(_._1)
-      .take(k)
       .map(_._2)
       .toArray
-    val clippedVectors = vectors.getColumns(indices)
-    XMeans.getClustering(clippedVectors)
+    vectors.getColumns(indices)
   }
 }

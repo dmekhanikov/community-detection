@@ -3,35 +3,31 @@ package megabyte.communities.experiments.classification
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.algo.graph.MultilayerSpectralClustering
+import megabyte.communities.algo.graph.{MultilayerSpectralClustering, SpectralClustering}
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.IO.{readMatrixWithHeader, readOrCalcMatrix}
 import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
 
-class MultilayerTuning
+class MultilayerSpectral
 
-object MultilayerTuning {
+object MultilayerSpectral {
 
-  private val LOG = Logger[MultilayerTuning]
+  private val LOG = Logger[MultilayerSpectral]
 
   private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val relationFile = new File(relationsDir, "multilayer.csv")
-  private val NETWORKS = Seq(
-    "foursquare",
-    "twitter",
-    "instagram")
 
-  private val adjs = NETWORKS.par.map { fileName =>
+  private val adjs = networks.par.map { fileName =>
     readMatrixWithHeader(new File(similarityGraphsDir, fileName + ".csv"))._2
   }.seq
   private val lSyms = adjs.map(Graphs.symLaplacian)
-  private val us = NETWORKS.zip(lSyms)
+  private val us = networks.zip(lSyms)
     .map { case (net, l) =>
       val file = new File(subspaceDir, net + ".csv")
       readOrCalcMatrix(file) {
-        MultilayerSpectralClustering.toEigenspace(l)
+        SpectralClustering.toEigenspace(l)
       }
     }
 

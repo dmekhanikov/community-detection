@@ -2,11 +2,12 @@ package megabyte.communities.algo.graph
 
 import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
+import megabyte.communities.algo.graph.SpectralClustering.toEigenspace
 import megabyte.communities.algo.points.XMeans
 import megabyte.communities.entities.Edge
 import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs._
-import org.jblas.{DoubleMatrix, Eigen}
+import org.jblas.DoubleMatrix
 
 private class MultilayerSpectralClustering
 
@@ -55,16 +56,5 @@ object MultilayerSpectralClustering {
     val lMod = getLMod(us, lSyms, dim, alpha)
     LOG.info("Searching for eigenvectors of the modified Laplacian matrix")
     toEigenspace(lMod).prefixColumns(dim).normRowsI()
-  }
-
-  def toEigenspace(matrix: DoubleMatrix): DoubleMatrix = {
-    val Array(vectors, valuesMatrix) = Eigen.symmetricEigenvectors(matrix)
-    val indices = valuesMatrix
-      .diagonalElements()
-      .zipWithIndex
-      .sortBy(_._1)
-      .map(_._2)
-      .toArray
-    vectors.getColumns(indices)
   }
 }

@@ -3,7 +3,7 @@ package megabyte.communities.experiments.clustering
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.algo.graph.MultilayerSpectralClustering
+import megabyte.communities.algo.graph.{MultilayerSpectralClustering, SpectralClustering}
 import megabyte.communities.algo.points.XMeans
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.DoubleMatrixOps._
@@ -40,7 +40,7 @@ object MultilayerSimilarityGraphClustering {
       .map { case (fileName, l) =>
         val file = new File(subspaceDir, fileName)
         readOrCalcMatrix(file) {
-          MultilayerSpectralClustering.toEigenspace(l)
+          SpectralClustering.toEigenspace(l)
         }.prefixColumns(k)
       }
     MultilayerSpectralClustering.toCommonEigenspace(us, lSyms, k, alpha)

@@ -27,23 +27,18 @@ object ConstrainedMultilayerClustering {
   private val k = 2
   private val alpha = 0.2
 
-  private val NETWORKS = Seq(
-    "foursquare",
-    "twitter",
-    "instagram")
-
   def main(args: Array[String]): Unit = {
     LOG.info("Reading adjacency matrices")
-    val (networksHashes, adjs) = NETWORKS.par.map { network =>
+    val (networksHashes, adjs) = networks.par.map { network =>
       readMatrixWithHeader(new File(similarityGraphsDir, s"$network.csv"))
     }.seq.unzip
     LOG.info("Reading constraint graphs")
-    val constraints = NETWORKS.zip(networksHashes).par.map { case (net, hashes) =>
+    val constraints = networks.zip(networksHashes).par.map { case (net, hashes) =>
       readConstraintsMatrix(s"$net.graphml", hashes)
     }.seq
 
     LOG.info("Calculating subspace representations for each layer with applied constraints")
-    val us = NETWORKS.zip(adjs).zip(constraints).par.map { case ((net, adj), q) =>
+    val us = networks.zip(adjs).zip(constraints).par.map { case ((net, adj), q) =>
       val file = new File(subspaceDir, s"$net.csv")
       readOrCalcMatrix(file) {
         ConstrainedSpectralClustering.toEigenspace(adj, q)

@@ -27,6 +27,7 @@ class ExperimentConfig private(val baseDir: String, val city: String, val networ
       fileName => new File(featuresDir, s"$net/$fileName.csv")
     }
   }
+  val networks = Seq("twitter", "instagram", "foursquare")
 }
 
 object ExperimentConfig {

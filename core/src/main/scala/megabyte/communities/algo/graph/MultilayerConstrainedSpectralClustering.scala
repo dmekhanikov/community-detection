@@ -45,6 +45,6 @@ object MultilayerConstrainedSpectralClustering {
     lSyms.zip(us).foreach { case (li, ui) =>
       lMod += (li -= ((ui * ui.transpose()) *= alpha))
     }
-    MultilayerSpectralClustering.toEigenspace(lMod).prefixColumns(k).normRowsI()
+    SpectralClustering.toEigenspace(lMod).prefixColumns(k).normRowsI()
   }
 }
