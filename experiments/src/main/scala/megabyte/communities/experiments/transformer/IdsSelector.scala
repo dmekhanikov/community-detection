@@ -7,7 +7,7 @@ import megabyte.communities.util.IO
 
 import scala.util.Random
 
-class IdsSelector
+private class IdsSelector
 
 object IdsSelector {
 

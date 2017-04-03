@@ -6,6 +6,7 @@ import com.typesafe.scalalogging.Logger
 import megabyte.communities.util.IO
 import megabyte.communities.util.IO.readCSVToSeq
 import org.jblas.DoubleMatrix
+import weka.filters.unsupervised.attribute.Remove
 
 import scala.collection.TraversableLike
 import scala.collection.mutable.ArrayBuffer
@@ -109,5 +110,21 @@ object DataUtil {
   def makeFeaturesMatrix(users: Users, ids: Seq[String]): DoubleMatrix = {
     val features = ids.map(id => users(id).toArray)
     new DoubleMatrix(features.toArray)
+  }
+
+  def concatFeatures(networkUsers: Map[String, Users]): Users = {
+    networkUsers.values.reduce { (u1, u2) =>
+      val ids = u1.keys
+      ids.map { id =>
+        id -> (u1(id) ++ u2(id))
+      }.toMap
+    }
+  }
+
+  def attributesPrefixFilter(prefixLen: Int): Remove = {
+    val remove = new Remove
+    remove.setAttributeIndices(s"first-$prefixLen,last")
+    remove.setInvertSelection(true)
+    remove
   }
 }

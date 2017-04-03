@@ -10,8 +10,9 @@ import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.IO.{readMatrixWithHeader, readOrCalcMatrix}
 import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
+import weka.classifiers.trees.RandomForest
 
-class SingleLayerSpectral
+private class SingleLayerSpectral
 
 object SingleLayerSpectral {
 
@@ -57,6 +58,7 @@ object SingleLayerSpectral {
   private def getRelation(u: DoubleMatrix,
                           trainIndices: Seq[Int], trainLabels: Seq[String],
                           testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double)] = {
+    val randomForest = new RandomForest
     for (k <- 2 to 100) yield {
       LOG.info(s"evaluating k=$k")
       val allFeatures = u.prefixColumns(k)
@@ -65,7 +67,7 @@ object SingleLayerSpectral {
 
       val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
       val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
-      val fMeasure = RandomForestClassification.evaluate(trainInstances, testInstances)
+      val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
       LOG.info(s"F-measure=$fMeasure (k=$k)")
       (k, fMeasure)
     }

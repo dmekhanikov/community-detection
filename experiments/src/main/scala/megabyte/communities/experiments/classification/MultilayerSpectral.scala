@@ -9,8 +9,9 @@ import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.IO.{readMatrixWithHeader, readOrCalcMatrix}
 import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
+import weka.classifiers.trees.RandomForest
 
-class MultilayerSpectral
+private class MultilayerSpectral
 
 object MultilayerSpectral {
 
@@ -52,6 +53,7 @@ object MultilayerSpectral {
 
   private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
                           testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double, Double)] = {
+    val randomForest = new RandomForest
     for (k <- 2 to 100; alpha <- 0.1 to 1 by 0.1) yield {
       LOG.info(s"evaluating k=$k; alpha=$alpha")
       val allFeatures = featuresMatrix(k, alpha)
@@ -60,7 +62,7 @@ object MultilayerSpectral {
 
       val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
       val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
-      val fMeasure = RandomForestClassification.evaluate(trainInstances, testInstances)
+      val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
       logResult(k, alpha, fMeasure)
       (k, alpha, fMeasure)
     }

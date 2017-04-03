@@ -5,7 +5,7 @@ import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.util.Measures.modularity
 import org.jblas.DoubleMatrix
 
-class ClusteringUtil
+private class ClusteringUtil
 
 object ClusteringUtil {
 

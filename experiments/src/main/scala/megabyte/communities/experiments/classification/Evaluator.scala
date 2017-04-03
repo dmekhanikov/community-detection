@@ -5,15 +5,15 @@ import java.io.File
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.IO
-import weka.classifiers.Evaluation
 import weka.classifiers.trees.RandomForest
+import weka.classifiers.{Classifier, Evaluation}
 import weka.core.Instances
 
-private class RandomForestClassification
+private class Evaluator
 
-object RandomForestClassification {
+object Evaluator {
 
-  private val LOG = Logger[RandomForestClassification]
+  private val LOG = Logger[Evaluator]
 
   private val trainFile = new File(labelsDir, "train.arff")
   private val testFile = new File(labelsDir, "test.arff")
@@ -23,20 +23,20 @@ object RandomForestClassification {
     val testData = IO.readInstances(testFile)
     trainData.setClassIndex(trainData.numAttributes() - 1)
     testData.setClassIndex(trainData.numAttributes() - 1)
-    val evaluation = getEvaluation(trainData, testData)
+    val randomForest = new RandomForest
+    val evaluation = getEvaluation(randomForest, trainData, testData)
     printDetailedStats(evaluation)
   }
 
-  def evaluate(trainData: Instances, testData: Instances): Double = {
-    val evaluation = getEvaluation(trainData, testData)
+  def evaluate(classifier: Classifier, trainData: Instances, testData: Instances): Double = {
+    val evaluation = getEvaluation(classifier, trainData, testData)
     evaluation.unweightedMacroFmeasure()
   }
 
-  def getEvaluation(trainData: Instances, testData: Instances): Evaluation = {
-    val randomForest = new RandomForest()
-    randomForest.buildClassifier(trainData)
+  def getEvaluation(classifier: Classifier, trainData: Instances, testData: Instances): Evaluation = {
+    classifier.buildClassifier(trainData)
     val evaluation = new Evaluation(trainData)
-    evaluation.evaluateModel(randomForest, testData)
+    evaluation.evaluateModel(classifier, testData)
     evaluation
   }
 

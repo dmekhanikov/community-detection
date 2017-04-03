@@ -4,8 +4,9 @@ import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
+import weka.classifiers.trees.RandomForest
 
-class SingleLayer
+private class SingleLayer
 
 object SingleLayer {
 
@@ -24,6 +25,7 @@ object SingleLayer {
     val trainLabels = trainIds.map(allLabels)
     val testLabels = testIds.map(allLabels)
 
+    val randomForest = new RandomForest
     for ((net, users) <- normalizedData) {
       LOG.info(s"Processing $net")
       val trainFeatures = makeFeaturesMatrix(users, trainIds)
@@ -32,9 +34,9 @@ object SingleLayer {
       val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
       val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
 
-      val evaluation = RandomForestClassification.getEvaluation(trainInstances, testInstances)
+      val evaluation = Evaluator.getEvaluation(randomForest, trainInstances, testInstances)
       LOG.info(s"Results for $net:")
-      RandomForestClassification.printDetailedStats(evaluation)
+      Evaluator.printDetailedStats(evaluation)
     }
   }
 }
