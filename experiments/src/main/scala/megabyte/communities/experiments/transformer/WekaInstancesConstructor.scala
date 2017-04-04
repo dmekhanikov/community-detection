@@ -10,11 +10,9 @@ import megabyte.communities.util.{DataTransformer, IO}
 import org.jblas.DoubleMatrix
 import weka.core.Instances
 
-private class WekaInstancesConstructor
-
 object WekaInstancesConstructor {
 
-  private val LOG = Logger[WekaInstancesConstructor]
+  private val LOG = Logger[WekaInstancesConstructor.type]
 
   private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val trainFile = new File(labelsDir, "train.arff")

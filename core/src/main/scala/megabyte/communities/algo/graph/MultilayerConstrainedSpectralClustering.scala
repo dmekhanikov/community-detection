@@ -6,11 +6,9 @@ import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 
-private class MultilayerConstrainedSpectralClustering
-
 object MultilayerConstrainedSpectralClustering {
 
-  private val LOG = Logger[MultilayerConstrainedSpectralClustering]
+  private val LOG = Logger[MultilayerConstrainedSpectralClustering.type]
 
   def getClustering(adjMatrices: Seq[DoubleMatrix],
                     constraints: Seq[DoubleMatrix],

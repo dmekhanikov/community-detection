@@ -11,11 +11,9 @@ import weka.core.converters.ArffSaver
 
 import scala.collection.JavaConversions._
 
-private class IO
-
 object IO {
 
-  private val LOG = Logger[IO]
+  private val LOG = Logger[IO.type]
 
   def readMatrixWithHeader(file: File): (Seq[String], DoubleMatrix) = {
     LOG.info(s"Reading data from file $file")

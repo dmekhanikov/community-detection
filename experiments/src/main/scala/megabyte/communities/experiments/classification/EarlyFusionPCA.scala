@@ -7,11 +7,9 @@ import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
 
-private class EarlyFusionPCA
-
 object EarlyFusionPCA extends PCAPreprocessor {
 
-  private val LOG = Logger[EarlyFusionPCA]
+  private val LOG = Logger[EarlyFusionPCA.type]
 
   private val relationFile = new File(relationsDir, "multilayer-pca.csv")
 

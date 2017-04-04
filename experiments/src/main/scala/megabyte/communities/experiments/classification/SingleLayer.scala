@@ -6,11 +6,9 @@ import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
 import weka.classifiers.trees.RandomForest
 
-private class SingleLayer
-
 object SingleLayer {
 
-  private val LOG = Logger[SingleLayer]
+  private val LOG = Logger[SingleLayer.type]
 
   def main(args: Array[String]): Unit = {
     val networkUsers: Map[String, Seq[Users]] =

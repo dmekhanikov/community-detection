@@ -5,8 +5,6 @@ import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
 import weka.classifiers.trees.RandomForest
 
-private class EarlyFusion
-
 object EarlyFusion {
 
   def main(args: Array[String]): Unit = {

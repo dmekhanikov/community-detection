@@ -7,11 +7,9 @@ import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
 
-private class SingleLayerPCA
-
 object SingleLayerPCA extends PCAPreprocessor {
 
-  private val LOG = Logger[SingleLayerPCA]
+  private val LOG = Logger[SingleLayerPCA.type]
 
   private val singleLayerPCARelationsDir = new File(relationsDir, "single_layer_pca")
 

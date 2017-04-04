@@ -9,11 +9,9 @@ import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs._
 import org.jblas.DoubleMatrix
 
-private class MultilayerSpectralClustering
-
 object MultilayerSpectralClustering {
 
-  private val LOG = Logger[MultilayerSpectralClustering]
+  private val LOG = Logger[MultilayerSpectralClustering.type]
 
   // alpha - coefficient in the objective function. Importance of layers to be close on the manifold.
   def getClustering(graphs: Seq[Graph[Long, Edge]], k: Int, alpha: Double): Map[Long, Int] = {

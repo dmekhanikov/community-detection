@@ -9,11 +9,9 @@ import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Measures
 import org.jblas.DoubleMatrix
 
-private class SimilarityGraphConstructor
-
 object SimilarityGraphConstructor {
 
-  private val LOG = Logger[SimilarityGraphConstructor]
+  private val LOG = Logger[SimilarityGraphConstructor.type]
 
   private val SIGMA_FACTOR = 1.5
 

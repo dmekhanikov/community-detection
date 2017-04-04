@@ -5,11 +5,9 @@ import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.util.Measures.modularity
 import org.jblas.DoubleMatrix
 
-private class ClusteringUtil
-
 object ClusteringUtil {
 
-  private val LOG = Logger[ClusteringUtil]
+  private val LOG = Logger[ClusteringUtil.type]
 
   def optimizeClustersCount(adj: DoubleMatrix, start: Int, end: Int): (Int, Seq[Int]) = {
     (start to end)

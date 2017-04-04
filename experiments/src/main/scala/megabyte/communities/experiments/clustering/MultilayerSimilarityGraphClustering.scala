@@ -10,11 +10,9 @@ import megabyte.communities.util.Graphs
 import megabyte.communities.util.IO._
 import org.jblas.DoubleMatrix
 
-private class MultilayerSimilarityGraphClustering
-
 object MultilayerSimilarityGraphClustering {
 
-  private val LOG = Logger[MultilayerSimilarityGraphClustering]
+  private val LOG = Logger[MultilayerSimilarityGraphClustering.type]
 
   def main(args: Array[String]): Unit = {
     val u = subspace(10, 0.2)

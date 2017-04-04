@@ -7,11 +7,9 @@ import megabyte.communities.experiments.util.ClusteringUtil._
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.IO._
 
-private class SimilarityGraphClustering
-
 object SimilarityGraphClustering {
 
-  private val LOG = Logger[SimilarityGraphClustering]
+  private val LOG = Logger[SimilarityGraphClustering.type]
 
   private val adjFile = new File(s"$baseDir/$city/graphs/similarity/$network.csv")
 

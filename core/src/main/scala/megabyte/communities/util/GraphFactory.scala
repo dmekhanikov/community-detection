@@ -9,11 +9,9 @@ import megabyte.communities.entities.Edge
 
 import scala.language.implicitConversions
 
-private class GraphFactory
-
 object GraphFactory {
 
-  private val logger = Logger[GraphFactory]
+  private val logger = Logger[GraphFactory.type]
 
   val WEIGHT_PROP = "weight"
 

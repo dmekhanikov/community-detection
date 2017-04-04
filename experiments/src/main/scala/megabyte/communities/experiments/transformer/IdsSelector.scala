@@ -7,11 +7,9 @@ import megabyte.communities.util.IO
 
 import scala.util.Random
 
-private class IdsSelector
-
 object IdsSelector {
 
-  private val LOG = Logger[IdsSelector]
+  private val LOG = Logger[IdsSelector.type]
 
   private val TEST_FRACTION = 0.1
 

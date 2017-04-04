@@ -9,11 +9,9 @@ import weka.classifiers.trees.RandomForest
 import weka.classifiers.{Classifier, Evaluation}
 import weka.core.Instances
 
-private class Evaluator
-
 object Evaluator {
 
-  private val LOG = Logger[Evaluator]
+  private val LOG = Logger[Evaluator.type]
 
   private val trainFile = new File(labelsDir, "train.arff")
   private val testFile = new File(labelsDir, "test.arff")

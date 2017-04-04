@@ -11,11 +11,9 @@ import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
 import weka.classifiers.trees.RandomForest
 
-private class MultilayerSpectral
-
 object MultilayerSpectral {
 
-  private val LOG = Logger[MultilayerSpectral]
+  private val LOG = Logger[MultilayerSpectral.type]
 
   private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val relationFile = new File(relationsDir, "multilayer.csv")

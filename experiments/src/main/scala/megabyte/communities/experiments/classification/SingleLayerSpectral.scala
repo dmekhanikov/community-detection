@@ -12,11 +12,9 @@ import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
 import weka.classifiers.trees.RandomForest
 
-private class SingleLayerSpectral
-
 object SingleLayerSpectral {
 
-  private val LOG = Logger[SingleLayerSpectral]
+  private val LOG = Logger[SingleLayerSpectral.type]
 
   private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val singleLayerRelationsDir = new File(relationsDir, "single_layer_spectral")

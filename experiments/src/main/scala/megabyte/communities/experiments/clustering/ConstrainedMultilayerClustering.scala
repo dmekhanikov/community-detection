@@ -18,11 +18,9 @@ import org.jblas.DoubleMatrix
 
 import scala.collection.JavaConversions._
 
-private class ConstrainedMultilayerClustering
-
 object ConstrainedMultilayerClustering {
 
-  private val LOG = Logger[ConstrainedMultilayerClustering]
+  private val LOG = Logger[ConstrainedMultilayerClustering.type]
 
   private val k = 2
   private val alpha = 0.2

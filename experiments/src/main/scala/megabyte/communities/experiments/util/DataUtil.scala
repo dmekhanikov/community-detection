@@ -11,14 +11,12 @@ import weka.filters.unsupervised.attribute.Remove
 import scala.collection.TraversableLike
 import scala.collection.mutable.ArrayBuffer
 
-private class DataUtil
-
 object DataUtil {
 
   type Features = Seq[Double]
   type Users = Map[String, Features]
 
-  private val LOG = Logger[DataUtil]
+  private val LOG = Logger[DataUtil.type]
 
   val ID_COL = "row ID"
   val GENDER_COL = "gender"

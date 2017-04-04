@@ -12,11 +12,9 @@ import org.jblas.DoubleMatrix
 
 import collection.JavaConversions._
 
-private class SocialGraphsClustering
-
 object SocialGraphsClustering {
 
-  private val LOG = Logger[SocialGraphsClustering]
+  private val LOG = Logger[SocialGraphsClustering.type]
 
   def main(args: Array[String]): Unit = {
     val graphs = Seq("twitter", "instagram", "foursquare")
