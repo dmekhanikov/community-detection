@@ -22,6 +22,7 @@ object MultilayerConstrainedSpectralClustering {
                    constraints: Seq[DoubleMatrix],
                    k: Int,
                    alpha: Double): DoubleMatrix = {
+    val lSyms = adjMatrices.map(symLaplacian)
     LOG.info("Processing constraints")
     val us = adjMatrices.zip(constraints).zipWithIndex.map { case ((adj, q), i) =>
       val u = ConstrainedSpectralClustering.toEigenspace(adj, q)
@@ -29,20 +30,6 @@ object MultilayerConstrainedSpectralClustering {
       LOG.info(s"Processed constraints on layer #${i + 1}/${adjMatrices.size}")
       u
     }
-    combineLayers(adjMatrices, us, k, alpha)
-  }
-
-  def combineLayers(adjMatrices: Seq[DoubleMatrix],
-                    us: Seq[DoubleMatrix],
-                    k: Int,
-                    alpha: Double): DoubleMatrix = {
-    val lSyms = adjMatrices.map(symLaplacian)
-    val n = adjMatrices.head.rows
-    val lMod = new DoubleMatrix(n, n)
-    LOG.info("Calculating Laplacian matrix for multilayer constrained clustering")
-    lSyms.zip(us).foreach { case (li, ui) =>
-      lMod += (li -= ((ui * ui.transpose()) *= alpha))
-    }
-    SpectralClustering.toEigenspace(lMod).prefixColumns(k).normRowsI()
+    MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
   }
 }

@@ -14,7 +14,6 @@ object WekaInstancesConstructor {
 
   private val LOG = Logger[WekaInstancesConstructor.type]
 
-  private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val trainFile = new File(labelsDir, "train.arff")
   private val testFile = new File(labelsDir, "test.arff")
 
@@ -32,7 +31,7 @@ object WekaInstancesConstructor {
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
 
-    val allIds = IO.readHeader(graphFile)
+    val allIds = readIds(networks.head)
     val trainIndices = trainIds.map(id => allIds.indexOf(id))
     val testIndices = testIds.map(id => allIds.indexOf(id))
 

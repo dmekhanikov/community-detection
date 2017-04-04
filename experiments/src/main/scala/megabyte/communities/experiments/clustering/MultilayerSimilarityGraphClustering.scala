@@ -26,12 +26,12 @@ object MultilayerSimilarityGraphClustering {
     }.seq.map(Graphs.symLaplacian)
     val us = networks.zip(lSyms)
       .map { case (net, l) =>
-        val file = new File(subspaceDir, net + ".csv")
+        val file = new File(symSubspacesDir, net + ".csv")
         readOrCalcMatrix(file) {
           SpectralClustering.toEigenspace(l)
         }
       }
-    MultilayerSpectralClustering.toCommonEigenspace(us, lSyms, k, alpha)
+    MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
   }
 
   private def logStats(clustering: Seq[Int]): Unit = {

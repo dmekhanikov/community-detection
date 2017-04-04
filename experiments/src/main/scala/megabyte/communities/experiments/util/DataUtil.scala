@@ -1,15 +1,24 @@
 package megabyte.communities.experiments.util
 
 import java.io.File
+import java.math.BigInteger
+import java.security.MessageDigest
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.util.IO
-import megabyte.communities.util.IO.readCSVToSeq
+import edu.uci.ics.jung.graph.Graph
+import edu.uci.ics.jung.graph.util.EdgeType
+import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, SpectralClustering}
+import megabyte.communities.entities.Edge
+import megabyte.communities.experiments.config.ExperimentConfig.config._
+import megabyte.communities.util.{GraphFactory, IO}
+import megabyte.communities.util.IO.{readCSVToSeq, readMatrixWithHeader, readOrCalcMatrix}
 import org.jblas.DoubleMatrix
 import weka.filters.unsupervised.attribute.Remove
 
 import scala.collection.TraversableLike
 import scala.collection.mutable.ArrayBuffer
+
+import scala.collection.JavaConversions._
 
 object DataUtil {
 
@@ -124,5 +133,64 @@ object DataUtil {
     remove.setAttributeIndices(s"first-$prefixLen,last")
     remove.setInvertSelection(true)
     remove
+  }
+
+  def readAdj(network: String): (Seq[String], DoubleMatrix) = {
+    readMatrixWithHeader(new File(similarityGraphsDir, network + ".csv"))
+  }
+
+  def readOrCalcSymSubspace(net: String, lSym: DoubleMatrix): DoubleMatrix = {
+    val file = new File(symSubspacesDir, net + ".csv")
+    readOrCalcMatrix(file) {
+      SpectralClustering.toEigenspace(lSym)
+    }
+  }
+
+  def readOrCalcConstrainedSubspace(net: String, adj: DoubleMatrix, q: DoubleMatrix): DoubleMatrix = {
+    val file = new File(symSubspacesDir, net + ".csv")
+    readOrCalcMatrix(file) {
+      ConstrainedSpectralClustering.toEigenspace(adj, q)
+    }
+  }
+
+  def readIds(net: String): Seq[String] = {
+    IO.readHeader(new File(similarityGraphsDir, net + ".csv"))
+  }
+
+  def readConstraintsMatrix(fileName: String, hashes: Seq[String]): DoubleMatrix = {
+    val constraintsFile = new File(socialGraphsDir, fileName)
+    val graph = GraphFactory.readGraph(constraintsFile)
+    val q = graphToAdjMatrix(graph, hashes)
+    q
+  }
+
+  def graphToAdjMatrix(graph: Graph[String, Edge], numeration: Seq[String]): DoubleMatrix = {
+    val n = numeration.size
+    val vertices = graph.getVertices.toSeq
+    val positions = vertices.map { v => // vertex id in graph -> position in matrix
+      (v, numeration.indexOf(md5(v)))
+    }.filter(_._2 > 0)
+      .toMap
+    val matrix = new DoubleMatrix(n, n)
+    for (e <- graph.getEdges) {
+      val endpoints = graph.getEndpoints(e)
+      val (from, to) = (endpoints.getFirst, endpoints.getSecond)
+      for {
+        fromInd <- positions.get(from)
+        toInd <- positions.get(to)
+      } yield {
+        matrix.put(fromInd, toInd, 1)
+        if (graph.getEdgeType(e) == EdgeType.UNDIRECTED) {
+          matrix.put(toInd, fromInd, 1)
+        }
+      }
+    }
+    matrix
+  }
+
+  def md5(s: String): String = {
+    val md5Digest = MessageDigest.getInstance("MD5")
+    val bytesResult = md5Digest.digest(s.getBytes)
+    new BigInteger(1, bytesResult).toString(16)
   }
 }

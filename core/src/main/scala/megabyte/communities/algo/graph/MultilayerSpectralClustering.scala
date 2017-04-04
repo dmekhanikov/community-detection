@@ -2,7 +2,6 @@ package megabyte.communities.algo.graph
 
 import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
-import megabyte.communities.algo.graph.SpectralClustering.toEigenspace
 import megabyte.communities.algo.points.XMeans
 import megabyte.communities.entities.Edge
 import megabyte.communities.util.DoubleMatrixOps._
@@ -29,7 +28,7 @@ object MultilayerSpectralClustering {
     val lSyms = adjMatrices.map(symLaplacian)
     val us = lSyms.zipWithIndex.map { case (l, i) =>
       LOG.info(s"Starting processing layer #${i + 1}")
-      val u = toEigenspace(l).prefixColumns(dim)
+      val u = SpectralClustering.toEigenspace(l).prefixColumns(dim)
       LOG.info(s"${i + 1} / ${adjMatrices.size} layers processed")
       u
     }
@@ -50,9 +49,9 @@ object MultilayerSpectralClustering {
     lMod
   }
 
-  def toCommonEigenspace(us: Seq[DoubleMatrix], lSyms: Seq[DoubleMatrix], dim: Int, alpha: Double): DoubleMatrix = {
+  def toCommonEigenspace(lSyms: Seq[DoubleMatrix], us: Seq[DoubleMatrix], dim: Int, alpha: Double): DoubleMatrix = {
     val lMod = getLMod(us, lSyms, dim, alpha)
     LOG.info("Searching for eigenvectors of the modified Laplacian matrix")
-    toEigenspace(lMod).prefixColumns(dim).normRowsI()
+    SpectralClustering.toEigenspace(lMod).prefixColumns(dim).normRowsI()
   }
 }
