@@ -20,10 +20,10 @@ object MultilayerSpectral {
   private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val relationFile = new File(relationsDir, "multilayer.csv")
 
-  private val adjs = networks.par.map { fileName =>
+  private val lSyms = networks.par.map { fileName =>
     readMatrixWithHeader(new File(similarityGraphsDir, fileName + ".csv"))._2
-  }.seq
-  private val lSyms = adjs.map(Graphs.symLaplacian)
+  }.seq.map(Graphs.symLaplacian)
+
   private val us = networks.zip(lSyms)
     .map { case (net, l) =>
       val file = new File(subspaceDir, net + ".csv")

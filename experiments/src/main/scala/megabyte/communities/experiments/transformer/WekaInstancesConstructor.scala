@@ -3,14 +3,12 @@ package megabyte.communities.experiments.transformer
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.experiments.clustering.MultilayerSimilarityGraphClustering
 import megabyte.communities.experiments.config.ExperimentConfig.config._
+import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
 import org.jblas.DoubleMatrix
 import weka.core.Instances
-
-import scala.util.Random
 
 private class WekaInstancesConstructor
 
@@ -18,9 +16,7 @@ object WekaInstancesConstructor {
 
   private val LOG = Logger[WekaInstancesConstructor]
 
-  private val TEST_FRACTION = 0.1
-
-  private val graphFile = new File(baseDir, s"$city/graphs/similarity/twitter.csv")
+  private val graphFile = new File(similarityGraphsDir, "twitter.csv")
   private val trainFile = new File(labelsDir, "train.arff")
   private val testFile = new File(labelsDir, "test.arff")
 
@@ -35,12 +31,15 @@ object WekaInstancesConstructor {
   private def dataset(): (Instances, Instances) = {
     val allLabels = readLabels(labelsFile, ID_COL, GENDER_COL)
 
-    val numeration = IO.readHeader(graphFile).filter(allLabels.contains)
-    val permutation = Random.shuffle[Int, Seq](numeration.indices)
-    val (testIndices, trainIndices) = split(permutation, TEST_FRACTION)
+    val trainIds = IO.readLines(trainIdsFile)
+    val testIds = IO.readLines(testIdsFile)
 
-    val trainLabels = getLabels(trainIndices, numeration, allLabels)
-    val testLabels = getLabels(testIndices, numeration, allLabels)
+    val allIds = IO.readHeader(graphFile)
+    val trainIndices = trainIds.map(id => allIds.indexOf(id))
+    val testIndices = testIds.map(id => allIds.indexOf(id))
+
+    val trainLabels = trainIds.map(allLabels)
+    val testLabels = testIds.map(allLabels)
 
     val allFeatures = featuresMatrix()
     val trainFeatures = allFeatures.getRows(trainIndices.toArray)
@@ -52,5 +51,5 @@ object WekaInstancesConstructor {
   }
 
   private def featuresMatrix(): DoubleMatrix =
-    MultilayerSimilarityGraphClustering.subspace()
+    MultilayerSimilarityGraphClustering.subspace(10, 0.2)
 }

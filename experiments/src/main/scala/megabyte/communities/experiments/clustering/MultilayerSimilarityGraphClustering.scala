@@ -6,7 +6,6 @@ import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.{MultilayerSpectralClustering, SpectralClustering}
 import megabyte.communities.algo.points.XMeans
 import megabyte.communities.experiments.config.ExperimentConfig.config._
-import megabyte.communities.util.DoubleMatrixOps._
 import megabyte.communities.util.Graphs
 import megabyte.communities.util.IO._
 import org.jblas.DoubleMatrix
@@ -17,31 +16,22 @@ object MultilayerSimilarityGraphClustering {
 
   private val LOG = Logger[MultilayerSimilarityGraphClustering]
 
-  private val INPUT_FILES = Seq(
-    "foursquare.csv",
-    "twitter.csv",
-    "instagram.csv")
-
-  private val k = 10
-  private val alpha = 0.2
-
   def main(args: Array[String]): Unit = {
-    val u = subspace()
+    val u = subspace(10, 0.2)
     val clustering = XMeans.getClustering(u)
     logStats(clustering)
   }
 
-  def subspace(): DoubleMatrix = {
-    val adjs = INPUT_FILES.par.map { fileName =>
-      readMatrixWithHeader(new File(similarityGraphsDir, fileName))._2
-    }.seq
-    val lSyms = adjs.map(Graphs.symLaplacian)
-    val us = INPUT_FILES.zip(lSyms)
-      .map { case (fileName, l) =>
-        val file = new File(subspaceDir, fileName)
+  def subspace(k: Int, alpha: Double): DoubleMatrix = {
+    val lSyms = networks.par.map { net =>
+      readMatrixWithHeader(new File(similarityGraphsDir, net + ".csv"))._2
+    }.seq.map(Graphs.symLaplacian)
+    val us = networks.zip(lSyms)
+      .map { case (net, l) =>
+        val file = new File(subspaceDir, net + ".csv")
         readOrCalcMatrix(file) {
           SpectralClustering.toEigenspace(l)
-        }.prefixColumns(k)
+        }
       }
     MultilayerSpectralClustering.toCommonEigenspace(us, lSyms, k, alpha)
   }
