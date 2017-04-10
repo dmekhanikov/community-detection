@@ -15,11 +15,6 @@ object Measures {
     math.sqrt(sqrSum)
   }
 
-  def cosineSim(a: Seq[Double], b: Seq[Double]): Double = {
-    val prod = a.zip(b).map { case (x, y) => x * y }.sum
-    prod / euclidNorm(a) / euclidNorm(b)
-  }
-
   def gaussianSim(p1: DoubleMatrix, p2: DoubleMatrix, sigma: Double): Double = {
     val d = p1.distTo(p2)
     Math.exp(-math.pow(d, 2) / 2 / math.pow(sigma, 2))

@@ -7,18 +7,17 @@ import java.security.MessageDigest
 import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
 import edu.uci.ics.jung.graph.util.EdgeType
-import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, SpectralClustering}
+import megabyte.communities.algo.graph.{SpectralClustering, WangConstrainedSpectralClustering}
 import megabyte.communities.entities.Edge
 import megabyte.communities.experiments.config.ExperimentConfig.config._
-import megabyte.communities.util.{GraphFactory, IO}
 import megabyte.communities.util.IO.{readCSVToSeq, readMatrixWithHeader, readOrCalcMatrix}
+import megabyte.communities.util.{GraphFactory, IO}
 import org.jblas.DoubleMatrix
 import weka.filters.unsupervised.attribute.Remove
 
+import scala.collection.JavaConversions._
 import scala.collection.TraversableLike
 import scala.collection.mutable.ArrayBuffer
-
-import scala.collection.JavaConversions._
 
 object DataUtil {
 
@@ -147,9 +146,9 @@ object DataUtil {
   }
 
   def readOrCalcConstrainedSubspace(net: String, adj: DoubleMatrix, q: DoubleMatrix): DoubleMatrix = {
-    val file = new File(symSubspacesDir, net + ".csv")
+    val file = new File(commonConstrainedSubspacesDir, net + ".csv")
     readOrCalcMatrix(file) {
-      ConstrainedSpectralClustering.toEigenspace(adj, q)
+      WangConstrainedSpectralClustering.toEigenspace(adj, q)
     }
   }
 

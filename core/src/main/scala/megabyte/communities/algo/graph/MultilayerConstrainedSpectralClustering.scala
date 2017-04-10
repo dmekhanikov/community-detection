@@ -25,7 +25,7 @@ object MultilayerConstrainedSpectralClustering {
     val lSyms = adjMatrices.map(symLaplacian)
     LOG.info("Processing constraints")
     val us = adjMatrices.zip(constraints).zipWithIndex.map { case ((adj, q), i) =>
-      val u = ConstrainedSpectralClustering.toEigenspace(adj, q)
+      val u = WangConstrainedSpectralClustering.toEigenspace(adj, q)
         .prefixColumns(k)
       LOG.info(s"Processed constraints on layer #${i + 1}/${adjMatrices.size}")
       u

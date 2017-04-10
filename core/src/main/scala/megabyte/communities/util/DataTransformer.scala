@@ -52,17 +52,23 @@ object DataTransformer {
   // points to adjacency matrix of graph with gaussian similarity
   // sigma - parameter for gaussian similarity
   def pointsToGraph(points: DoubleMatrix, sigma: Double): DoubleMatrix = {
+    similarityMatrix(points) { (p1, p2) =>
+      Measures.gaussianSim(p1, p2, sigma)
+    }
+  }
+
+  def similarityMatrix(points: DoubleMatrix)(sim: (DoubleMatrix, DoubleMatrix) => Double): DoubleMatrix = {
     val n = points.rows
-    val adj = new DoubleMatrix(n, n)
+    val m = new DoubleMatrix(n, n)
     for (i <- 0 until n) {
       val p1 = points.getRow(i)
-      for (j <- 0 until i) {
+      for (j <- 0 to i) {
         val p2 = points.getRow(j)
-        val sim = Measures.gaussianSim(p1, p2, sigma)
-        adj.put(i, j, sim)
-        adj.put(j, i, sim)
+        val v = sim(p1, p2)
+        m.put(i, j, v)
+        m.put(j, i, v)
       }
     }
-    adj
+    m
   }
 }

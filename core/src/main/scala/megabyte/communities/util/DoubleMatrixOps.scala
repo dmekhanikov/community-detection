@@ -4,8 +4,8 @@ import java.io.{BufferedWriter, File, FileWriter, Writer}
 import java.util.Locale
 
 import megabyte.communities.util.DoubleMatrixOps._
-import org.jblas.DoubleMatrix
 import org.jblas.ranges.RangeUtils.interval
+import org.jblas.{DoubleMatrix, Solve}
 
 final class DoubleMatrixOps(val self: DoubleMatrix) {
   def +(other: DoubleMatrix): DoubleMatrix = self.add(other)
@@ -79,6 +79,10 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
       self.put(i, i, inv)
     }
     self
+  }
+
+  def inv(): DoubleMatrix = {
+    Solve.pinv(self)
   }
 
   def sqrtDiagI(): DoubleMatrix = {

@@ -17,6 +17,7 @@ class ExperimentConfig private(val baseDir: String, val city: String, val networ
   val subspacesDir = new File(cityDir, "subspaces")
   val symSubspacesDir = new File(subspacesDir, "sym")
   val constrainedSubspacesDir = new File(subspacesDir, "constrained")
+  val commonConstrainedSubspacesDir = new File(constrainedSubspacesDir, "common")
   val socialGraphsDir = new File(graphsDir, "connections")
   val featuresDir = new File(cityDir, "features")
   val relationsDir = new File(cityDir, "relations")

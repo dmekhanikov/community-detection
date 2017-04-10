@@ -8,7 +8,7 @@ import org.jblas.DoubleMatrix
 import org.jblas.DoubleMatrix._
 import org.jblas.Eigen._
 
-object ConstrainedSpectralClustering {
+object WangConstrainedSpectralClustering {
 
   def getClustering(adj: DoubleMatrix, constraints: DoubleMatrix, k: Int): Seq[Int] = {
     val u = toEigenspace(adj, constraints).prefixColumns(k)
