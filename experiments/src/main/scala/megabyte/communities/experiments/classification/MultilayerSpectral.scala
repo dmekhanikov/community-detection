@@ -14,16 +14,20 @@ object MultilayerSpectral {
 
   private val LOG = Logger[MultilayerSpectral.type]
 
-  private val relationFile = new File(relationsDir, "multilayer.csv")
-
-  private val lSyms =
-    networks.par.map(net => readAdj(net)._2).seq
-      .map(Graphs.symLaplacian)
-  private val us = networks.zip(lSyms).map {
-    case (net, l) => readOrCalcSymSubspace(net, l)
+  def main(args: Array[String]): Unit = {
+    val relationFile = new File(relationsDir, "multilayer.csv")
+    val lSyms =
+      networks.par.map(net => readAdj(net)._2).seq
+        .map(Graphs.symLaplacian)
+    val us = networks.zip(lSyms).map {
+      case (net, l) => readOrCalcSymSubspace(net, l)
+    }
+    run(lSyms, us, relationFile)
   }
 
-  def main(args: Array[String]): Unit = {
+  def run(lSyms: Seq[DoubleMatrix],
+          us: Seq[DoubleMatrix],
+          relationFile: File): Unit = {
     val allIds = readIds(networks.head)
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
@@ -35,7 +39,7 @@ object MultilayerSpectral {
     val trainIndices = trainIds.map(id => allIds.indexOf(id))
     val testIndices = testIds.map(id => allIds.indexOf(id))
 
-    val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels)
+    val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels, lSyms, us)
     IO.writeRelation(Seq("k", "alpha", "F-measure"), relation, relationFile)
     val (k, alpha, fMeasure) = relation.maxBy(_._3)
     LOG.info("Best solution:")
@@ -43,11 +47,12 @@ object MultilayerSpectral {
   }
 
   private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
-                          testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double, Double)] = {
+                          testIndices: Seq[Int], testLabels: Seq[String],
+                          lSyms: Seq[DoubleMatrix], us: Seq[DoubleMatrix]): Seq[(Int, Double, Double)] = {
     val randomForest = new RandomForest
     for (k <- 2 to 100; alpha <- 0.1 to 1 by 0.1) yield {
       LOG.info(s"evaluating k=$k; alpha=$alpha")
-      val allFeatures = featuresMatrix(k, alpha)
+      val allFeatures = MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
       val trainFeatures = allFeatures.getRows(trainIndices.toArray)
       val testFeatures = allFeatures.getRows(testIndices.toArray)
 
@@ -61,9 +66,5 @@ object MultilayerSpectral {
 
   private def logResult(k: Int, alpha: Double, fMeasure: Double): Unit = {
     LOG.info(s"k: $k; alpha: $alpha; F-measure: $fMeasure")
-  }
-
-  private def featuresMatrix(k: Int, alpha: Double): DoubleMatrix = {
-    MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
   }
 }
