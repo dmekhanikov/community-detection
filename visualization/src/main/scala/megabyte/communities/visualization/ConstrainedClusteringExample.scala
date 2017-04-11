@@ -11,7 +11,7 @@ object ConstrainedClusteringExample {
 
   private val file = "jain.txt"
   private val k = 2
-  private val weightK = 10
+  private val knn = 10
   private val sigma = 0.8
   private val alpha = 0.4
 
@@ -31,7 +31,7 @@ object ConstrainedClusteringExample {
     val n = points.rows
     val w = DataTransformer.pointsToGraph(points, sigma)
     val q = constraintMatrix(n, pointsPane.mlConstraints, pointsPane.clConstraints)
-    val wKnn = makeKNNWeightMatrix(w, weightK)
+    val wKnn = makeKNNWeightMatrix(w, knn)
 
     val f = propagateConstraints(q, wKnn, alpha)
     val wMod = applyConstraints(w, f)

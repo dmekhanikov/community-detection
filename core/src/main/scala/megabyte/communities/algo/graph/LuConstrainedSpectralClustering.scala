@@ -8,19 +8,20 @@ import org.jblas.DoubleMatrix._
 
 object LuConstrainedSpectralClustering {
 
-  def getClustering(w: DoubleMatrix, constraints: DoubleMatrix, k: Int, alpha: Double): Seq[Int] = {
-    val u = toEigenspace(w, constraints, alpha).prefixColumns(k)
+  def getClustering(w: DoubleMatrix, q: DoubleMatrix, k: Int, knn: Int, alpha: Double): Seq[Int] = {
+    val u = toEigenspace(w, q, knn, alpha).prefixColumns(k)
     KMeans.getClustering(u, k)
   }
 
-  def toEigenspace(w: DoubleMatrix, constraints: DoubleMatrix, alpha: Double): DoubleMatrix = {
-    val f = propagateConstraints(constraints, w, alpha)
+  def toEigenspace(w: DoubleMatrix, q: DoubleMatrix, knn: Int, alpha: Double): DoubleMatrix = {
+    val knnW = makeKNNWeightMatrix(w, knn)
+    val f = propagateConstraints(q, w, alpha)
     val adjMod = applyConstraints(w, f)
     val lMod = symLaplacian(adjMod)
     SpectralClustering.toEigenspace(lMod)
   }
 
-  def makeKNNWeightMatrix(w: DoubleMatrix, k: Int): DoubleMatrix = {
+  def makeKNNWeightMatrix(w: DoubleMatrix, knn: Int): DoubleMatrix = {
     val wKnn = new DoubleMatrix(w.rows, w.columns)
     for (i <- 0 until w.rows) {
       val connections = (0 until w.columns)
@@ -28,7 +29,7 @@ object LuConstrainedSpectralClustering {
         .map(j => (j, w.get(i, j)))
       val neighbours = connections
         .sortBy(-_._2)
-        .take(k)
+        .take(knn)
         .map(_._1)
       for (j <- neighbours) {
         val x = w.get(i, j) / sqrtOrOne(w.get(i, i)) / sqrtOrOne(w.get(j, j))
@@ -45,11 +46,11 @@ object LuConstrainedSpectralClustering {
     ((t * z) *= t) *= math.pow(1 - alpha, 2)
   }
 
-  def applyConstraints(w: DoubleMatrix, constraints: DoubleMatrix): DoubleMatrix = {
+  def applyConstraints(w: DoubleMatrix, q: DoubleMatrix): DoubleMatrix = {
     val n = w.columns
     val adjMod = new DoubleMatrix(n, n)
     for (i <- 0 until n; j <- 0 until n) {
-      val f = constraints.get(i, j)
+      val f = q.get(i, j)
       val oldVal = w.get(i, j)
       val newVal = if (f >= 0) {
         1 - (1 - f) * (1 - oldVal)
