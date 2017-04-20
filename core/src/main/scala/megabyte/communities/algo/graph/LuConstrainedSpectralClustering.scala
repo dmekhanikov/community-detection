@@ -15,7 +15,7 @@ object LuConstrainedSpectralClustering {
 
   def toEigenspace(w: DoubleMatrix, q: DoubleMatrix, knn: Int, alpha: Double): DoubleMatrix = {
     val knnW = makeKNNWeightMatrix(w, knn)
-    val f = propagateConstraints(q, w, alpha)
+    val f = propagateConstraints(q, knnW, alpha)
     val adjMod = applyConstraints(w, f)
     val lMod = symLaplacian(adjMod)
     SpectralClustering.toEigenspace(lMod)
