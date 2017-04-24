@@ -29,6 +29,7 @@ libraryDependencies in ThisBuild ++= Seq(
   "net.sf.jung" % "jung-graph-impl" % versions.jung,
   "net.sf.jung" % "jung-io" % versions.jung,
   "org.jblas" % "jblas" % "1.2.4",
+  "nz.ac.waikato.cms.weka" % "weka-stable" % "3.8.1",
   "nz.ac.waikato.cms.weka" % "XMeans" % "1.0.4",
 
   "org.slf4j" % "slf4j-api" % versions.slf4j,

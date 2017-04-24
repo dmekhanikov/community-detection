@@ -21,9 +21,24 @@ object Evaluator {
     val testData = IO.readInstances(testFile)
     trainData.setClassIndex(trainData.numAttributes() - 1)
     testData.setClassIndex(trainData.numAttributes() - 1)
+    val (numTrees, numFeatures, _) = getRelation(trainData, testData).maxBy(_._3)
+
     val randomForest = new RandomForest
+    randomForest.setNumIterations(numTrees)
+    randomForest.setNumFeatures(numFeatures)
     val evaluation = getEvaluation(randomForest, trainData, testData)
     printDetailedStats(evaluation)
+  }
+
+  private def getRelation(trainData: Instances, testData: Instances): Seq[(Int, Int, Double)] = {
+    for (numTrees <- 20 to 200 by 10; numFeatures <- 1 until trainData.numAttributes()) yield {
+      val randomForest = new RandomForest
+      randomForest.setNumFeatures(numFeatures)
+      randomForest.setNumIterations(numTrees)
+      val fMeasure = evaluate(randomForest, trainData, testData)
+      LOG.info(s"numTrees=$numTrees; numFeatures=$numFeatures; fMeasure=$fMeasure")
+      (numTrees, numFeatures, fMeasure)
+    }
   }
 
   def evaluate(classifier: Classifier, trainData: Instances, testData: Instances): Double = {
