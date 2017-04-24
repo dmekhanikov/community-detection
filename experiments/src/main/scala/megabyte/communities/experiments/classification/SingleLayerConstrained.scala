@@ -5,6 +5,7 @@ import megabyte.communities.algo.graph.LuConstrainedSpectralClustering
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
+import org.jblas.DoubleMatrix
 import weka.classifiers.trees.RandomForest
 
 object SingleLayerConstrained {
@@ -33,21 +34,34 @@ object SingleLayerConstrained {
     val trainIndices = trainIds.map(allIds.indexOf(_))
     val testIndices = testIds.map(allIds.indexOf(_))
 
-    val randomForest = new RandomForest
-
     for ((net, (adj, q)) <- networks.zip(adjs.zip(qs))) {
       LOG.info("Processing " + net)
-      for (knn <- 5 to 50 by 5; alpha <- 0.05 to 1 by 0.05) {
-        val allFeatures = LuConstrainedSpectralClustering.toEigenspace(adj, q, knn, alpha)
-        val trainFeatures = allFeatures.getRows(trainIndices.toArray)
-        val testFeatures = allFeatures.getRows(testIndices.toArray)
-
-        val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
-        val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
-
-        val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
-        LOG.info(s"Results for $net: F-measure=$fMeasure (knn=$knn; alpha=$alpha)")
-      }
+      val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels, adj, q)
+      val (knn, alpha, fMeasure) = relation.maxBy(_._3)
+      LOG.info(s"Best solution for $net:")
+      logResult(knn, alpha, fMeasure)
     }
+  }
+
+  private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
+                          testIndices: Seq[Int], testLabels: Seq[String],
+                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Int, Double, Double)] = {
+    val randomForest = new RandomForest
+    for (knn <- 5 to 50 by 5; alpha <- 0.05 to 1 by 0.05) yield {
+      LOG.info(s"evaluating knn=$knn; alpha=$alpha")
+      val allFeatures = LuConstrainedSpectralClustering.toEigenspace(adj, q, knn, alpha)
+      val trainFeatures = allFeatures.getRows(trainIndices.toArray)
+      val testFeatures = allFeatures.getRows(testIndices.toArray)
+
+      val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
+      val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
+      val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
+      logResult(knn, alpha, fMeasure)
+      (knn, alpha, fMeasure)
+    }
+  }
+
+  private def logResult(knn: Int, alpha: Double, fMeasure: Double): Unit = {
+    LOG.info(s"knn: $knn; alpha: $alpha; F-measure: $fMeasure")
   }
 }
