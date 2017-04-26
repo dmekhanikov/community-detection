@@ -21,24 +21,20 @@ object Evaluator {
     val testData = IO.readInstances(testFile)
     trainData.setClassIndex(trainData.numAttributes() - 1)
     testData.setClassIndex(trainData.numAttributes() - 1)
-    val (numTrees, numFeatures, _) = getRelation(trainData, testData).maxBy(_._3)
-
-    val randomForest = new RandomForest
-    randomForest.setNumIterations(numTrees)
-    randomForest.setNumFeatures(numFeatures)
-    val evaluation = getEvaluation(randomForest, trainData, testData)
-    printDetailedStats(evaluation)
+    tuneRandomForest(trainData, testData)
   }
 
-  private def getRelation(trainData: Instances, testData: Instances): Seq[(Int, Int, Double)] = {
-    for (numTrees <- 20 to 200 by 10; numFeatures <- 1 until trainData.numAttributes()) yield {
+  def tuneRandomForest(trainData: Instances, testData: Instances): Unit = {
+    val relation = for (numTrees <- 20 to 200 by 10; numFeatures <- 1 until trainData.numAttributes()) yield {
       val randomForest = new RandomForest
       randomForest.setNumFeatures(numFeatures)
       randomForest.setNumIterations(numTrees)
       val fMeasure = evaluate(randomForest, trainData, testData)
-      LOG.info(s"numTrees=$numTrees; numFeatures=$numFeatures; fMeasure=$fMeasure")
+      logParameters(numTrees, numFeatures, fMeasure)
       (numTrees, numFeatures, fMeasure)
     }
+    val (numTrees, numFeatures, fMeasure) = relation.maxBy(_._3)
+    logParameters(numTrees, numFeatures, fMeasure)
   }
 
   def evaluate(classifier: Classifier, trainData: Instances, testData: Instances): Double = {
@@ -66,5 +62,9 @@ object Evaluator {
     LOG.info("Precision = " + evaluation.precision(1))
     LOG.info("Recall = " + evaluation.recall(1))
     LOG.info("F-measure = " + evaluation.fMeasure(1))
+  }
+
+  private def logParameters(numTrees: Int, numFeatures: Int, fMeasure: Double): Unit = {
+    LOG.info(s"numTrees=$numTrees; numFeatures=$numFeatures; fMeasure=$fMeasure")
   }
 }

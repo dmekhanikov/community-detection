@@ -9,6 +9,7 @@ import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, Graphs, IO}
 import org.jblas.DoubleMatrix
 import weka.classifiers.trees.RandomForest
+import weka.core.Instances
 
 object MultilayerSpectral {
 
@@ -49,19 +50,28 @@ object MultilayerSpectral {
   private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
                           testIndices: Seq[Int], testLabels: Seq[String],
                           lSyms: Seq[DoubleMatrix], us: Seq[DoubleMatrix]): Seq[(Int, Double, Double)] = {
-    val randomForest = new RandomForest
     for (k <- 2 to 100; alpha <- 0.1 to 1 by 0.1) yield {
-      LOG.info(s"evaluating k=$k; alpha=$alpha")
-      val allFeatures = MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
-      val trainFeatures = allFeatures.getRows(trainIndices.toArray)
-      val testFeatures = allFeatures.getRows(testIndices.toArray)
-
-      val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
-      val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
+      val randomForest = new RandomForest
+      val (trainInstances, testInstances) =
+        constructInstances(trainIndices, trainLabels, testIndices, testLabels, lSyms, us, k, alpha)
       val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
       logResult(k, alpha, fMeasure)
       (k, alpha, fMeasure)
     }
+  }
+
+  private def constructInstances(trainIndices: Seq[Int], trainLabels: Seq[String],
+                       testIndices: Seq[Int], testLabels: Seq[String],
+                       lSyms: Seq[DoubleMatrix], us: Seq[DoubleMatrix],
+                       k: Int, alpha: Double): (Instances, Instances) = {
+    LOG.info(s"evaluating k=$k; alpha=$alpha")
+    val allFeatures = MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
+    val trainFeatures = allFeatures.getRows(trainIndices.toArray)
+    val testFeatures = allFeatures.getRows(testIndices.toArray)
+
+    val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
+    val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
+    (trainInstances, testInstances)
   }
 
   private def logResult(k: Int, alpha: Double, fMeasure: Double): Unit = {
