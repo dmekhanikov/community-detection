@@ -9,6 +9,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -43,5 +44,16 @@ public class MongoDAO {
             return null;
         }
         return (List<Long>) user.get(FRIENDS);
+    }
+
+    public List<Long> getUserIds(String collectionName) {
+        MongoCollection<Document> collection = db.getCollection(collectionName);
+        FindIterable<Document> findResult = collection.find();
+
+        List<Long> ids = new ArrayList<>();
+        for (Document user : findResult) {
+            ids.add(user.getLong("userId"));
+        }
+        return ids;
     }
 }
