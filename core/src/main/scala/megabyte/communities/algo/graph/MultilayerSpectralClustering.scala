@@ -44,7 +44,7 @@ object MultilayerSpectralClustering {
     lSyms
       .zip(us.map(u => u.prefixColumns(dim)))
       .foreach { case (li, ui) =>
-        lMod += (li -= ((ui * ui.transpose()) *= alpha))
+        lMod += (li - ((ui * ui.transpose()) *= alpha))
       }
     lMod
   }
