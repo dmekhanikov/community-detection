@@ -25,7 +25,7 @@ object Evaluator {
   }
 
   def tuneRandomForest(trainData: Instances, testData: Instances): Unit = {
-    val relation = for (numTrees <- 20 to 200 by 10; numFeatures <- 1 until trainData.numAttributes()) yield {
+    val relation = for (numTrees <- 20 to 200 by 10; numFeatures <- 1 until math.min(trainData.numAttributes(), 200)) yield {
       val randomForest = new RandomForest
       randomForest.setNumFeatures(numFeatures)
       randomForest.setNumIterations(numTrees)
