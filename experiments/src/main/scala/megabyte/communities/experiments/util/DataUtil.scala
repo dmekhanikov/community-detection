@@ -7,7 +7,7 @@ import java.security.MessageDigest
 import com.typesafe.scalalogging.Logger
 import edu.uci.ics.jung.graph.Graph
 import edu.uci.ics.jung.graph.util.EdgeType
-import megabyte.communities.algo.graph.{LuConstrainedSpectralClustering, SpectralClustering}
+import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.entities.Edge
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.IO.{readCSVToSeq, readMatrixWithHeader, readOrCalcMatrix}
@@ -184,5 +184,11 @@ object DataUtil {
     val md5Digest = MessageDigest.getInstance("MD5")
     val bytesResult = md5Digest.digest(s.getBytes)
     new BigInteger(1, bytesResult).toString(16)
+  }
+
+  def hashMapping: Map[String, Long] = {
+    IO.readLines(allIdsFile)
+      .map(id => md5(id) -> id.toLong)
+      .toMap
   }
 }
