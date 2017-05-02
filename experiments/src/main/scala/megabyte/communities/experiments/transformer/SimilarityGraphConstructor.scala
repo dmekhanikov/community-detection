@@ -13,7 +13,7 @@ object SimilarityGraphConstructor {
 
   private val LOG = Logger[SimilarityGraphConstructor.type]
 
-  private val SIGMA_FACTOR = 1.5
+  val SIGMA_FACTOR = 1.5
 
   def main(args: Array[String]): Unit = {
     val networksData: Map[String, Seq[Users]] =
@@ -23,7 +23,7 @@ object SimilarityGraphConstructor {
     val numeration: Seq[String] = mergedData.values.flatMap(_.keys).toSet.toSeq
     normalizedData.par.foreach { case (net, users) =>
       LOG.info(s"Calculating adjacency matrix for $net")
-      val adj = calcAdjMatrix(users, numeration)
+      val adj = calcAdjMatrix(users, numeration, SIGMA_FACTOR)
       val outFile = new File(similarityGraphsDir, s"$net.csv")
       LOG.info(s"Writing result for $net to $outFile")
       adj.write(outFile, header = Some(numeration))
@@ -31,7 +31,7 @@ object SimilarityGraphConstructor {
     LOG.info("Finished, exiting")
   }
 
-  private def calcAdjMatrix(users: Users, numeration: Seq[String]): DoubleMatrix = {
+  def calcAdjMatrix(users: Users, numeration: Seq[String], sigmaFactor: Double): DoubleMatrix = {
     val n = users.keys.size
     val distances = new DoubleMatrix(n, n)
     for (i <- (0 until n).par; j <- (i + 1 until n).par) {
@@ -42,7 +42,7 @@ object SimilarityGraphConstructor {
       distances.put(i, j, dist)
       distances.put(j, i, dist)
     }
-    val sigma = SIGMA_FACTOR * distances.data.sorted.apply(n * n / 2)
+    val sigma = sigmaFactor * distances.data.sorted.apply(n * n / 2)
     val adj = distances.map { dist =>
       math.exp(-math.pow(dist, 2) / 2 / math.pow(sigma, 2))
     }

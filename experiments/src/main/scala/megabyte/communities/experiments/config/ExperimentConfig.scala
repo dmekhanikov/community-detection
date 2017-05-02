@@ -13,6 +13,7 @@ class ExperimentConfig private(val baseDir: String, val city: String, val networ
   val testIdsFile = new File(idsDir, "test.txt")
   val graphsDir = new File(cityDir, "graphs")
   val similarityGraphsDir = new File(graphsDir, "similarity")
+  val constrainedGraphsDir = new File(graphsDir, "constrained")
   val labelsDir = new File(cityDir, "labels")
   val labelsFile = new File(labelsDir, s"${city}GroundTruth.csv")
   val subspacesDir = new File(cityDir, "subspaces")
