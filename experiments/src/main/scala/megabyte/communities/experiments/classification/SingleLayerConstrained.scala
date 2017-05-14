@@ -36,31 +36,31 @@ object SingleLayerConstrained {
     for ((net, adj) <- networks.zip(adjs)) {
       LOG.info("Processing " + net)
       val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels, adj, q)
-      val (knn, alpha, fMeasure) = relation.maxBy(_._3)
+      val (alpha, fMeasure) = relation.maxBy(_._2)
       LOG.info(s"Best solution for $net:")
-      logResult(knn, alpha, fMeasure)
+      logResult(alpha, fMeasure)
     }
   }
 
   private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
                           testIndices: Seq[Int], testLabels: Seq[String],
-                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Int, Double, Double)] = {
+                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Double, Double)] = {
     val randomForest = new RandomForest
-    for (knn <- 5 to 50 by 5; alpha <- 0.05 to 1 by 0.05) yield {
-      LOG.info(s"evaluating knn=$knn; alpha=$alpha")
-      val allFeatures = LuConstrainedSpectralClustering.toEigenspace(adj, q, knn, alpha)
+    for (alpha <- 0.05 to 1 by 0.05) yield {
+      LOG.info(s"alpha=$alpha")
+      val allFeatures = LuConstrainedSpectralClustering.toEigenspace(adj, q, alpha)
       val trainFeatures = allFeatures.getRows(trainIndices.toArray)
       val testFeatures = allFeatures.getRows(testIndices.toArray)
 
       val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
       val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
       val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
-      logResult(knn, alpha, fMeasure)
-      (knn, alpha, fMeasure)
+      logResult(alpha, fMeasure)
+      (alpha, fMeasure)
     }
   }
 
-  private def logResult(knn: Int, alpha: Double, fMeasure: Double): Unit = {
-    LOG.info(s"knn: $knn; alpha: $alpha; F-measure: $fMeasure")
+  private def logResult(alpha: Double, fMeasure: Double): Unit = {
+    LOG.info(s"alpha: $alpha; F-measure: $fMeasure")
   }
 }

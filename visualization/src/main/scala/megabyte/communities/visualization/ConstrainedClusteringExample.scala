@@ -1,17 +1,19 @@
 package megabyte.communities.visualization
 
+import java.io.File
+
 import megabyte.communities.algo.graph.LuConstrainedSpectralClustering._
 import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.util.DataTransformer
 import megabyte.communities.visualization.Util._
 import megabyte.communities.visualization.widget.PointsPane
 import org.jblas.DoubleMatrix
+import megabyte.communities.util.DoubleMatrixOps._
 
 object ConstrainedClusteringExample {
 
   private val file = "jain.txt"
   private val k = 2
-  private val knn = 10
   private val sigma = 0.8
   private val alpha = 0.4
 
@@ -31,11 +33,6 @@ object ConstrainedClusteringExample {
     val n = points.rows
     val w = DataTransformer.pointsToGraph(points, sigma)
     val q = constraintMatrix(n, pointsPane.mlConstraints, pointsPane.clConstraints)
-    val wKnn = makeKNNWeightMatrix(w, knn)
-
-    val f = propagateConstraints(q, wKnn, alpha)
-    val wMod = applyConstraints(w, f)
-    val clustering = SpectralClustering.getClustering(wMod, k)
-    pointsPane.clustering = clustering
+    pointsPane.clustering = getClustering(w, q, k, alpha)
   }
 }

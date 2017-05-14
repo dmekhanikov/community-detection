@@ -8,14 +8,13 @@ import org.jblas.DoubleMatrix._
 
 object LuConstrainedSpectralClustering {
 
-  def getClustering(w: DoubleMatrix, q: DoubleMatrix, k: Int, knn: Int, alpha: Double): Seq[Int] = {
-    val u = toEigenspace(w, q, knn, alpha).prefixColumns(k)
+  def getClustering(w: DoubleMatrix, q: DoubleMatrix, k: Int, alpha: Double): Seq[Int] = {
+    val u = toEigenspace(w, q, alpha).prefixColumns(k)
     KMeans.getClustering(u, k)
   }
 
-  def toEigenspace(w: DoubleMatrix, q: DoubleMatrix, knn: Int, alpha: Double): DoubleMatrix = {
-    val knnW = makeKNNWeightMatrix(w, knn)
-    val f = propagateConstraints(q, knnW, alpha)
+  def toEigenspace(w: DoubleMatrix, q: DoubleMatrix, alpha: Double): DoubleMatrix = {
+    val f = propagateConstraints(q, w, alpha)
     val adjMod = applyConstraints(w, f)
     val lMod = symLaplacian(adjMod)
     SpectralClustering.toEigenspace(lMod)

@@ -12,7 +12,6 @@ object ConstrainedMultilayerClustering {
   private val LOG = Logger[ConstrainedMultilayerClustering.type]
 
   private val k = 2
-  private val knn = 10
   private val alpha = 0.2
 
   def main(args: Array[String]): Unit = {
@@ -27,7 +26,7 @@ object ConstrainedMultilayerClustering {
     LOG.info("Calculating subspace representations for each layer with applied constraints")
     val us = networks.zip(adjs).zip(constraints).par
       .map { case ((net, adj), q) =>
-        LuConstrainedSpectralClustering.toEigenspace(adj, q, knn, alpha)
+        LuConstrainedSpectralClustering.toEigenspace(adj, q, alpha)
       }.seq
     val u = MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
 
