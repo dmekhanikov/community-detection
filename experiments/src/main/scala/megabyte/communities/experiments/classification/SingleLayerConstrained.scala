@@ -10,6 +10,7 @@ import megabyte.communities.util.IO.readMatrixWithHeader
 import megabyte.communities.util.{DataTransformer, IO}
 import org.jblas.DoubleMatrix
 import weka.classifiers.trees.RandomForest
+import megabyte.communities.util.DoubleMatrixOps._
 
 object SingleLayerConstrained {
 
@@ -36,31 +37,34 @@ object SingleLayerConstrained {
     for ((net, adj) <- networks.zip(adjs)) {
       LOG.info("Processing " + net)
       val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels, adj, q)
-      val (alpha, fMeasure) = relation.maxBy(_._2)
+      val (alpha, k, fMeasure) = relation.maxBy(_._2)
       LOG.info(s"Best solution for $net:")
-      logResult(alpha, fMeasure)
+      logResult(alpha, k, fMeasure)
     }
   }
 
   private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
                           testIndices: Seq[Int], testLabels: Seq[String],
-                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Double, Double)] = {
+                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Double, Int, Double)] = {
     val randomForest = new RandomForest
-    for (alpha <- 0.05 to 1 by 0.05) yield {
-      LOG.info(s"alpha=$alpha")
-      val allFeatures = LuConstrainedSpectralClustering.toEigenspace(adj, q, alpha)
-      val trainFeatures = allFeatures.getRows(trainIndices.toArray)
-      val testFeatures = allFeatures.getRows(testIndices.toArray)
+    (for (alpha <- 0.05 to 1 by 0.05) yield {
+      val u = LuConstrainedSpectralClustering.toEigenspace(adj, q, alpha)
+      for (k <- 1 to 100) yield {
+        LOG.info(s"evaluating k=$k; alpha=$alpha")
+        val allFeatures = u.prefixColumns(k)
+        val trainFeatures = allFeatures.getRows(trainIndices.toArray)
+        val testFeatures = allFeatures.getRows(testIndices.toArray)
 
-      val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
-      val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
-      val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
-      logResult(alpha, fMeasure)
-      (alpha, fMeasure)
-    }
+        val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
+        val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
+        val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
+        logResult(alpha, k, fMeasure)
+        (alpha, k, fMeasure)
+      }
+    }).flatten
   }
 
-  private def logResult(alpha: Double, fMeasure: Double): Unit = {
-    LOG.info(s"alpha: $alpha; F-measure: $fMeasure")
+  private def logResult(alpha: Double, k: Int, fMeasure: Double): Unit = {
+    LOG.info(s"alpha: $alpha; k: $k; F-measure: $fMeasure")
   }
 }

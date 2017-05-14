@@ -49,7 +49,7 @@ object SingleLayerSpectral {
                           trainIndices: Seq[Int], trainLabels: Seq[String],
                           testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double)] = {
     val randomForest = new RandomForest
-    for (k <- 2 to 100) yield {
+    for (k <- 2 to math.min(100, u.columns)) yield {
       LOG.info(s"evaluating k=$k")
       val allFeatures = u.prefixColumns(k)
       val trainFeatures = allFeatures.getRows(trainIndices.toArray)
