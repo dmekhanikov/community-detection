@@ -1,9 +1,12 @@
 package megabyte.communities.experiments.classification
 
+import java.io.File
+
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.graph.LuConstrainedSpectralClustering
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
+import megabyte.communities.util.IO.readMatrixWithHeader
 import megabyte.communities.util.{DataTransformer, IO}
 import org.jblas.DoubleMatrix
 import weka.classifiers.trees.RandomForest
@@ -12,15 +15,11 @@ object SingleLayerConstrained {
 
   private val LOG = Logger[SingleLayerConstrained.type]
 
-  private val (networksHashes, adjs) = networks.par.map(readAdj).seq.unzip
+  private val adjs = networks.par.map(net =>
+    readMatrixWithHeader(new File(constrainedGraphsDir, network + ".csv"))
+  ).seq.unzip._2
 
-  private val qs = networks.zip(networksHashes).par.map { case (net, hashes) =>
-    val q = readConstraintsMatrix(s"$net.graphml", hashes)
-    for (i <- 0 until q.rows; j <- 0 until q.columns) {
-      q.put(i, j, q.get(i, j) / 2)
-    }
-    q
-  }.seq
+  private val q = readMatrixWithHeader(new File(constrainedGraphsDir, "q.csv"))._2
 
   def main(args: Array[String]): Unit = {
     val allIds = readIds(networks.head)
@@ -34,7 +33,7 @@ object SingleLayerConstrained {
     val trainIndices = trainIds.map(allIds.indexOf(_))
     val testIndices = testIds.map(allIds.indexOf(_))
 
-    for ((net, (adj, q)) <- networks.zip(adjs.zip(qs))) {
+    for ((net, adj) <- networks.zip(adjs)) {
       LOG.info("Processing " + net)
       val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels, adj, q)
       val (knn, alpha, fMeasure) = relation.maxBy(_._3)
