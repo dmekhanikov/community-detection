@@ -30,10 +30,10 @@ object ConstrainedSimilarityGraphConstructor {
       val meanMale = calcLabelMean(users, allLabels, trainIds, "male")
       val meanFemale = calcLabelMean(users, allLabels, trainIds, "female")
       val meanMap = Map("male" -> meanMale, "female" -> meanFemale)
-      val adj = calcAdjMatrix(users ++ meanMap, numeration ++ fullNumeration, SIGMA_FACTOR)
+      val adj = calcAdjMatrix(users ++ meanMap, fullNumeration, SIGMA_FACTOR)
       val outFile = new File(constrainedGraphsDir, s"$net.csv")
       LOG.info(s"Writing result for $net to $outFile")
-      adj.write(outFile, header = Some(numeration))
+      adj.write(outFile, header = Some(fullNumeration))
     }
 
     val q = makeConstraintsMatrix(fullNumeration)
