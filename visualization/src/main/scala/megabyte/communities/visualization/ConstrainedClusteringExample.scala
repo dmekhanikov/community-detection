@@ -1,14 +1,11 @@
 package megabyte.communities.visualization
 
-import java.io.File
-
-import megabyte.communities.algo.graph.LuConstrainedSpectralClustering._
-import megabyte.communities.algo.graph.SpectralClustering
+import megabyte.communities.algo.constraints.LuConstraintsApplier
+import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, SpectralClustering}
 import megabyte.communities.util.DataTransformer
 import megabyte.communities.visualization.Util._
 import megabyte.communities.visualization.widget.PointsPane
 import org.jblas.DoubleMatrix
-import megabyte.communities.util.DoubleMatrixOps._
 
 object ConstrainedClusteringExample {
 
@@ -33,6 +30,8 @@ object ConstrainedClusteringExample {
     val n = points.rows
     val w = DataTransformer.pointsToGraph(points, sigma)
     val q = constraintMatrix(n, pointsPane.mlConstraints, pointsPane.clConstraints)
-    pointsPane.clustering = getClustering(w, q, k, alpha)
+    val constraintsApplier = new LuConstraintsApplier(alpha)
+    val constrainedClustering = new ConstrainedSpectralClustering(constraintsApplier)
+    pointsPane.clustering = constrainedClustering.getClustering(w, q, k)
   }
 }

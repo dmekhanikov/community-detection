@@ -1,7 +1,8 @@
 package megabyte.communities.experiments.clustering
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.algo.graph.{LuConstrainedSpectralClustering, MultilayerSpectralClustering}
+import megabyte.communities.algo.constraints.LuConstraintsApplier
+import megabyte.communities.algo.graph.{ConstrainedSpectralClustering, MultilayerSpectralClustering}
 import megabyte.communities.algo.points.KMeans
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
@@ -13,6 +14,7 @@ object ConstrainedMultilayerClustering {
 
   private val k = 2
   private val alpha = 0.2
+  private val beta = 100
 
   def main(args: Array[String]): Unit = {
     LOG.info("Reading adjacency matrices")
@@ -24,9 +26,11 @@ object ConstrainedMultilayerClustering {
     }.seq
 
     LOG.info("Calculating subspace representations for each layer with applied constraints")
+    val constraintsApplier = new LuConstraintsApplier(alpha)
+    val constrainedClustering = new ConstrainedSpectralClustering(constraintsApplier)
     val us = networks.zip(adjs).zip(constraints).par
       .map { case ((net, adj), q) =>
-        LuConstrainedSpectralClustering.toEigenspace(adj, q, alpha)
+        constrainedClustering.toEigenspace(adj, q)
       }.seq
     val u = MultilayerSpectralClustering.toCommonEigenspace(lSyms, us, k, alpha)
 
