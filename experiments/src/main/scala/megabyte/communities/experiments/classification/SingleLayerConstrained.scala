@@ -3,7 +3,7 @@ package megabyte.communities.experiments.classification
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
-import megabyte.communities.algo.constraints.LuConstraintsApplier
+import megabyte.communities.algo.constraints.CustomConstraintsApplier
 import megabyte.communities.algo.graph.ConstrainedSpectralClustering
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
@@ -18,7 +18,7 @@ object SingleLayerConstrained {
   private val LOG = Logger[SingleLayerConstrained.type]
 
   private val adjs = networks.par.map(net =>
-    readMatrixWithHeader(new File(constrainedGraphsDir, network + ".csv"))
+    readMatrixWithHeader(new File(constrainedGraphsDir, net + ".csv"))
   ).seq.unzip._2
 
   private val q = readMatrixWithHeader(new File(constrainedGraphsDir, "q.csv"))._2
@@ -38,24 +38,24 @@ object SingleLayerConstrained {
     for ((net, adj) <- networks.zip(adjs)) {
       LOG.info("Processing " + net)
       val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels, adj, q)
-      val (alpha, k, fMeasure) = relation.maxBy(_._2)
+      val (knn, k, fMeasure) = relation.maxBy(_._2)
       LOG.info(s"Best solution for $net:")
-      logResult(alpha, k, fMeasure)
+      logResult(knn, k, fMeasure)
     }
   }
 
   private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
                           testIndices: Seq[Int], testLabels: Seq[String],
-                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Double, Int, Double)] = {
+                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Int, Int, Double)] = {
     val randomForest = new RandomForest
-    (for (alpha <- 0.05 to 1 by 0.05) yield {
-      val constraintsApplier = new LuConstraintsApplier(alpha)
+    (for (knn <- 3 to 30) yield {
+      val constraintsApplier = new CustomConstraintsApplier(knn)
       val constrainedClustering = new ConstrainedSpectralClustering(constraintsApplier)
 
+      LOG.info(s"evaluating knn=$knn")
       val u = constrainedClustering.toEigenspace(adj, q)
-      LOG.info(s"evaluating alpha=$alpha")
-      for (k <- 1 to math.min(100, u.columns)) yield {
-        LOG.info(s"evaluating k=$k; alpha=$alpha")
+      for (k <- 2 to math.min(100, u.columns)) yield {
+        LOG.info(s"evaluating knn=$knn; k=$k")
         val allFeatures = u.prefixColumns(k)
         val trainFeatures = allFeatures.getRows(trainIndices.toArray)
         val testFeatures = allFeatures.getRows(testIndices.toArray)
@@ -63,13 +63,13 @@ object SingleLayerConstrained {
         val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
         val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
         val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
-        logResult(alpha, k, fMeasure)
-        (alpha, k, fMeasure)
+        logResult(knn, k, fMeasure)
+        (knn, k, fMeasure)
       }
     }).flatten
   }
 
-  private def logResult(alpha: Double, k: Int, fMeasure: Double): Unit = {
-    LOG.info(s"alpha: $alpha; k: $k; F-measure: $fMeasure")
+  private def logResult(knn: Double, k: Int, fMeasure: Double): Unit = {
+    LOG.info(s"knn: $knn; k: $k; F-measure: $fMeasure")
   }
 }
