@@ -132,6 +132,14 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
     }
     writer.write(text)
   }
+
+  def transform(f: (Int, Int, Double) => Double): DoubleMatrix = {
+    for (i <- 0 until self.rows; j <- 0 until self.columns) {
+      val newVal = f(i, j, self.get(i, j))
+      self.put(i, j, newVal)
+    }
+    self
+  }
 }
 
 object DoubleMatrixOps {
