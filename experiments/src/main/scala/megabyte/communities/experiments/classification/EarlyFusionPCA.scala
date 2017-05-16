@@ -1,7 +1,5 @@
 package megabyte.communities.experiments.classification
 
-import java.io.File
-
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
@@ -10,8 +8,6 @@ import megabyte.communities.util.{DataTransformer, IO}
 object EarlyFusionPCA extends PCAPreprocessor {
 
   private val LOG = Logger[EarlyFusionPCA.type]
-
-  private val relationFile = new File(relationsDir, "multilayer-pca.csv")
 
   def main(args: Array[String]): Unit = {
     val networkUsers: Map[String, Seq[Users]] =
@@ -33,9 +29,7 @@ object EarlyFusionPCA extends PCAPreprocessor {
     val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
     val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
 
-    val relation = getRelation(trainInstances, testInstances)
-    val (k, fMeasure) = relation.maxBy(_._2)
-    LOG.info(s"Best solution: F-measure=$fMeasure (k=$k)")
-    IO.writeRelation(Seq("k", "F-measure"), relation, relationFile)
+    val (k, fMeasure) = tuneFeaturesNum(trainInstances, testInstances)
+    LOG.info(s"Result: k=$k; F-measure=$fMeasure")
   }
 }

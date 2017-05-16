@@ -1,7 +1,5 @@
 package megabyte.communities.experiments.classification
 
-import java.io.File
-
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
@@ -10,8 +8,6 @@ import megabyte.communities.util.{DataTransformer, IO}
 object SingleLayerPCA extends PCAPreprocessor {
 
   private val LOG = Logger[SingleLayerPCA.type]
-
-  private val singleLayerPCARelationsDir = new File(relationsDir, "single_layer_pca")
 
   def main(args: Array[String]): Unit = {
     val networkUsers: Map[String, Seq[Users]] =
@@ -34,16 +30,8 @@ object SingleLayerPCA extends PCAPreprocessor {
       val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
       val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
 
-      val relation = getRelation(trainInstances, testInstances)
-      if (relation.nonEmpty) {
-        val (k, fMeasure) = relation.maxBy(_._2)
-        LOG.info(s"Best solution for $net: F-measure=$fMeasure (k=$k)")
-
-        val relationFile = new File(singleLayerPCARelationsDir, net + ".csv")
-        IO.writeRelation(Seq("k", "F-measure"), relation, relationFile)
-      } else {
-        LOG.warn("Relation is empty")
-      }
+      val (k, fMeasure) = tuneFeaturesNum(trainInstances, testInstances)
+      LOG.info(s"Result for $net: k=$k; F-Measure=$fMeasure")
     }
   }
 }

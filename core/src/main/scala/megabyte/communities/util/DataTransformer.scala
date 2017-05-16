@@ -2,6 +2,7 @@ package megabyte.communities.util
 
 import java.util
 
+import megabyte.communities.util.DoubleMatrixOps._
 import org.jblas.DoubleMatrix
 import weka.core.{Attribute, DenseInstance, Instances}
 
@@ -39,6 +40,12 @@ object DataTransformer {
     }
     instances.setClass(labelAttr)
     instances
+  }
+
+  def constructInstances(allFeatures: DoubleMatrix, k: Int, indices: Seq[Int],
+                         labelValues: Seq[String], labels: Seq[String]): Instances = {
+    val features = allFeatures.prefixColumns(k).getRows(indices.toArray)
+    DataTransformer.constructInstances(features, labelValues, labels)
   }
 
   private def makeAttributes(n: Int): util.ArrayList[Attribute] = {

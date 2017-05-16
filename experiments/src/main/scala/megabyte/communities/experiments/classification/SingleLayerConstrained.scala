@@ -37,36 +37,44 @@ object SingleLayerConstrained {
 
     for ((net, adj) <- networks.zip(adjs)) {
       LOG.info("Processing " + net)
-      val relation = getRelation(trainIndices, trainLabels, testIndices, testLabels, adj, q)
-      val (knn, k, fMeasure) = relation.maxBy(_._2)
+      val (knn, k, fMeasure) = tuneFeaturesNum(trainIndices, trainLabels, testIndices, testLabels, adj, q)
       LOG.info(s"Best solution for $net:")
       logResult(knn, k, fMeasure)
     }
   }
 
-  private def getRelation(trainIndices: Seq[Int], trainLabels: Seq[String],
-                          testIndices: Seq[Int], testLabels: Seq[String],
-                          adj: DoubleMatrix, q: DoubleMatrix): Seq[(Int, Int, Double)] = {
+  private def tuneFeaturesNum(trainIndices: Seq[Int], trainLabels: Seq[String],
+                              testIndices: Seq[Int], testLabels: Seq[String],
+                              adj: DoubleMatrix, q: DoubleMatrix): (Int, Int, Double) = {
     val randomForest = new RandomForest
-    (for (knn <- 3 to 30) yield {
-      val constraintsApplier = new CustomConstraintsApplier(knn)
-      val constrainedClustering = new ConstrainedSpectralClustering(constraintsApplier)
+    val (bestKnn, bestK, _) =
+      (for (knn <- 3 to 30) yield {
+        LOG.info(s"evaluating knn=$knn")
+        val u = calcAllFeatures(adj, q, knn)
+        for (k <- 2 to math.min(100, u.columns)) yield {
+          LOG.info(s"evaluating knn=$knn; k=$k")
+          val allFeatures = u.prefixColumns(k)
+          val trainInstances = DataTransformer.constructInstances(allFeatures, k, trainIndices, GENDER_VALUES, trainLabels)
+          val fMeasure = Evaluator.crossValidate(randomForest, trainInstances)
+          logResult(knn, k, fMeasure)
+          (knn, k, fMeasure)
+        }
+      })
+        .flatten
+        .maxBy(_._3)
 
-      LOG.info(s"evaluating knn=$knn")
-      val u = constrainedClustering.toEigenspace(adj, q)
-      for (k <- 2 to math.min(100, u.columns)) yield {
-        LOG.info(s"evaluating knn=$knn; k=$k")
-        val allFeatures = u.prefixColumns(k)
-        val trainFeatures = allFeatures.getRows(trainIndices.toArray)
-        val testFeatures = allFeatures.getRows(testIndices.toArray)
+    val u = calcAllFeatures(adj, q, bestKnn)
+    val allFeatures = u.prefixColumns(bestK)
+    val trainInstances = DataTransformer.constructInstances(allFeatures, bestK, trainIndices, GENDER_VALUES, trainLabels)
+    val testInstances = DataTransformer.constructInstances(allFeatures, bestK, testIndices, GENDER_VALUES, testLabels)
+    val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
+    (bestKnn, bestK, fMeasure)
+  }
 
-        val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
-        val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
-        val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
-        logResult(knn, k, fMeasure)
-        (knn, k, fMeasure)
-      }
-    }).flatten
+  private def calcAllFeatures(w: DoubleMatrix, q: DoubleMatrix, knn: Int): DoubleMatrix = {
+    val constraintsApplier = new CustomConstraintsApplier(knn)
+    val clustering = new ConstrainedSpectralClustering(constraintsApplier)
+    clustering.toEigenspace(w, q)
   }
 
   private def logResult(knn: Double, k: Int, fMeasure: Double): Unit = {

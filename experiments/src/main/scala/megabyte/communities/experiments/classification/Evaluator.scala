@@ -1,6 +1,7 @@
 package megabyte.communities.experiments.classification
 
 import java.io.File
+import java.util.Random
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
@@ -40,6 +41,18 @@ object Evaluator {
   def evaluate(classifier: Classifier, trainData: Instances, testData: Instances): Double = {
     val evaluation = getEvaluation(classifier, trainData, testData)
     evaluation.unweightedMacroFmeasure()
+  }
+
+  def crossValidate(classifier: Classifier, data: Instances, folds: Int = 10): Double = {
+    val evaluation = getCVEvaluation(classifier, data, folds)
+    evaluation.unweightedMacroFmeasure()
+  }
+
+  def getCVEvaluation(classifier: Classifier, data: Instances, folds: Int = 10): Evaluation = {
+    classifier.buildClassifier(data)
+    val evaluation = new Evaluation(data)
+    evaluation.crossValidateModel(classifier, data, folds, new Random(1))
+    evaluation
   }
 
   def getEvaluation(classifier: Classifier, trainData: Instances, testData: Instances): Evaluation = {

@@ -1,12 +1,10 @@
 package megabyte.communities.experiments.classification
 
-import java.io.File
-
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
-import megabyte.communities.util.DoubleMatrixOps._
-import megabyte.communities.util.{DataTransformer, Graphs, IO}
+import megabyte.communities.util.DataTransformer.constructInstances
+import megabyte.communities.util.{Graphs, IO}
 import org.jblas.DoubleMatrix
 import weka.classifiers.trees.RandomForest
 
@@ -14,11 +12,9 @@ object SingleLayerSpectral {
 
   private val LOG = Logger[SingleLayerSpectral.type]
 
-  private val singleLayerRelationsDir = new File(relationsDir, "single_layer_spectral")
-
   private val lSyms =
     networks.par.map(net => readAdj(net)._2).seq
-    .map(Graphs.symLaplacian)
+      .map(Graphs.symLaplacian)
   private val us = networks.zip(lSyms).map { case (net, l) =>
     readOrCalcSymSubspace(net, l)
   }
@@ -37,29 +33,27 @@ object SingleLayerSpectral {
 
     for ((net, u) <- networks.zip(us)) {
       LOG.info("Evaluating " + net)
-      val relation = getRelation(u, trainIndices, trainLabels, testIndices, testLabels)
-      IO.writeRelation(Seq("k", "F-measure"), relation,
-        new File(singleLayerRelationsDir, net + ".csv"))
-      val (k, fMeasure) = relation.maxBy(_._2)
+      val (k, fMeasure) = tuneFeaturesNum(u, trainIndices, trainLabels, testIndices, testLabels)
       LOG.info(s"Best solution for $net: F-measure=$fMeasure (k=$k)")
     }
   }
 
-  private def getRelation(u: DoubleMatrix,
-                          trainIndices: Seq[Int], trainLabels: Seq[String],
-                          testIndices: Seq[Int], testLabels: Seq[String]): Seq[(Int, Double)] = {
+  private def tuneFeaturesNum(u: DoubleMatrix,
+                              trainIndices: Seq[Int], trainLabels: Seq[String],
+                              testIndices: Seq[Int], testLabels: Seq[String]): (Int, Double) = {
     val randomForest = new RandomForest
-    for (k <- 2 to math.min(100, u.columns)) yield {
+    val bestK = (for (k <- 2 to math.min(100, u.columns)) yield {
       LOG.info(s"evaluating k=$k")
-      val allFeatures = u.prefixColumns(k)
-      val trainFeatures = allFeatures.getRows(trainIndices.toArray)
-      val testFeatures = allFeatures.getRows(testIndices.toArray)
-
-      val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
-      val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
-      val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
+      val instances = constructInstances(u, k, trainIndices, GENDER_VALUES, trainLabels)
+      val fMeasure = Evaluator.crossValidate(randomForest, instances)
       LOG.info(s"F-measure=$fMeasure (k=$k)")
       (k, fMeasure)
-    }
+    })
+      .maxBy(_._2)
+      ._1
+    val trainInstances = constructInstances(u, bestK, trainIndices, GENDER_VALUES, trainLabels)
+    val testInstances = constructInstances(u, bestK, testIndices, GENDER_VALUES, testLabels)
+    val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
+    (bestK, fMeasure)
   }
 }
