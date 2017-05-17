@@ -1,17 +1,32 @@
 package megabyte.communities.algo.constraints
 
 import com.typesafe.scalalogging.Logger
+import megabyte.communities.algo.constraints.CustomConstraintsApplier.LOG
 import megabyte.communities.util.DoubleMatrixOps._
 import org.jblas.DoubleMatrix
+
+object CustomConstraintsApplier {
+
+  private val LOG = Logger[CustomConstraintsApplier.type]
+
+  def constructClosure(m: DoubleMatrix): Unit = {
+    LOG.debug("constructing closure for constraints set")
+    val n = m.columns
+    for (i <- (0 until n).par; j <- 0 until i; k <- 0 until n) { // i -> k -> j => (i -> j) + (j -> i)
+      if (m.get(i, k) > 0 && m.get(k, j) > 0) {
+        val newVal = math.max(m.get(i, j), m.get(i, k) * m.get(k, j))
+        m.put(i, j, newVal)
+        m.put(j, i, newVal)
+      }
+    }
+  }
+}
 
 // works only for must-link constraints
 class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier {
 
-  private val LOG = Logger[CustomConstraintsApplier]
-
   override def applyConstraints(w: DoubleMatrix, q: DoubleMatrix): DoubleMatrix = {
     val n = w.columns
-    constructClosure(q)
     val neighborsMapping: Seq[Seq[Int]] = getNeighborsMapping(w, knn)
     LOG.debug("imposing constraints")
     val wMod = new DoubleMatrix(n, n)
@@ -28,18 +43,6 @@ class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier 
       }
     }
     wMod
-  }
-
-  private def constructClosure(m: DoubleMatrix): Unit = {
-    LOG.debug("constructing closure for constraints set")
-    val n = m.columns
-    for (i <- 0 until n; j <- 0 until i; k <- 0 until n) { // i -> k -> j => (i -> j) + (j -> i)
-      if (m.get(i, k) > 0 && m.get(k, j) > 0) {
-        val newVal = math.max(m.get(i, j), m.get(i, k) * m.get(k, j))
-        m.put(i, j, newVal)
-        m.put(j, i, newVal)
-      }
-    }
   }
 
   private def getNeighborsMapping(w: DoubleMatrix, knn: Int): Seq[Seq[Int]] = {

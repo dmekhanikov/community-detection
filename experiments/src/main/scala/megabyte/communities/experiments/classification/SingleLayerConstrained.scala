@@ -35,6 +35,7 @@ object SingleLayerConstrained {
     val trainIndices = trainIds.map(allIds.indexOf(_))
     val testIndices = testIds.map(allIds.indexOf(_))
 
+    CustomConstraintsApplier.constructClosure(q)
     for ((net, adj) <- networks.zip(adjs)) {
       LOG.info("Processing " + net)
       val (knn, k, fMeasure) = tuneFeaturesNum(trainIndices, trainLabels, testIndices, testLabels, adj, q)
