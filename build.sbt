@@ -32,8 +32,7 @@ libraryDependencies in ThisBuild ++= Seq(
   "nz.ac.waikato.cms.weka" % "weka-stable" % "3.8.1",
   "nz.ac.waikato.cms.weka" % "XMeans" % "1.0.4",
 
-  "org.slf4j" % "slf4j-api" % versions.slf4j,
-  "org.slf4j" % "slf4j-simple" % versions.slf4j,
+  "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
 
   "org.scalactic" %% "scalactic" % "3.0.1",

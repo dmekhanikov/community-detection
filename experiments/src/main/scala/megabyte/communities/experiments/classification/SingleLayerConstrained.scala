@@ -48,7 +48,7 @@ object SingleLayerConstrained {
                               adj: DoubleMatrix, q: DoubleMatrix): (Int, Int, Double) = {
     val randomForest = new RandomForest
     val (bestKnn, bestK, _) =
-      (for (knn <- 3 to 30) yield {
+      (for (knn <- 2 to 10) yield {
         LOG.info(s"evaluating knn=$knn")
         val u = calcAllFeatures(adj, q, knn)
         for (k <- 2 to math.min(100, u.columns)) yield {
@@ -63,8 +63,7 @@ object SingleLayerConstrained {
         .flatten
         .maxBy(_._3)
 
-    val u = calcAllFeatures(adj, q, bestKnn)
-    val allFeatures = u.prefixColumns(bestK)
+    val allFeatures = calcAllFeatures(adj, q, bestKnn)
     val trainInstances = DataTransformer.constructInstances(allFeatures, bestK, trainIndices, GENDER_VALUES, trainLabels)
     val testInstances = DataTransformer.constructInstances(allFeatures, bestK, testIndices, GENDER_VALUES, testLabels)
     val fMeasure = Evaluator.evaluate(randomForest, trainInstances, testInstances)
