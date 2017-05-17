@@ -45,8 +45,8 @@ object ConstrainedSimilarityGraphConstructor {
     LOG.info("Constructing constraints matrix")
     val n = numeration.size
     val q = new DoubleMatrix(n, n)
-    val maleSubscribers = IO.readLines(new File(baseDir, "maleSubscribers.txt")).map(md5)
-    val femaleSubscribers = IO.readLines(new File(baseDir, "femaleSubscribers.txt")).map(md5)
+    val maleSubscribers = IO.readLines(new File(portalsDir, "maleSubscribers.txt")).map(md5)
+    val femaleSubscribers = IO.readLines(new File(portalsDir, "femaleSubscribers.txt")).map(md5)
     val maleId = n - 2
     val femaleId = n - 1
     connectSubscribers(q, numeration, maleSubscribers, maleId)

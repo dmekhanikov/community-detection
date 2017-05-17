@@ -22,7 +22,7 @@ class ExperimentConfig private(val baseDir: String, val city: String, val networ
   val commonConstrainedSubspacesDir = new File(constrainedSubspacesDir, "common")
   val socialGraphsDir = new File(graphsDir, "connections")
   val featuresDir = new File(cityDir, "features")
-  val relationsDir = new File(cityDir, "relations")
+  val portalsDir = new File(baseDir, "portals")
   val featureFiles: Map[String, Seq[File]] = Map(
     ("twitter", Seq("LDA50Features", "LIWCFeatures", "manuallyDefinedTextFeatures")),
     ("instagram", Seq("imageConceptsFeatures")),

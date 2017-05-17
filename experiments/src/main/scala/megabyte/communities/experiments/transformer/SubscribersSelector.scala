@@ -14,7 +14,7 @@ object SubscribersSelector {
   val subscribersFileName = "maleSubscribers.txt"
 
   def main(args: Array[String]): Unit = {
-    val portalIdsFile = new File(baseDir, portalsFileName)
+    val portalIdsFile = new File(portalsDir, portalsFileName)
     val portalIds = IO.readLines(portalIdsFile).map(_.toLong).toSet
     val dao = new MongoDAO(MongoDAO.CRAWLER_DB)
     val userIds = dao.getUserIds(network)
@@ -23,7 +23,7 @@ object SubscribersSelector {
         dao.getFriends("twitter", id)
           .exists(portalIds.contains(_)))
       .map(_.toString)
-    val outFile = new File(baseDir, subscribersFileName)
+    val outFile = new File(portalsDir, subscribersFileName)
     IO.writeLines(subscribers, outFile)
   }
 }
