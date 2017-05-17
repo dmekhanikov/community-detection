@@ -1,19 +1,24 @@
 package megabyte.communities.algo.constraints
 
+import com.typesafe.scalalogging.Logger
 import megabyte.communities.util.DoubleMatrixOps._
 import org.jblas.DoubleMatrix
 
 // works only for must-link constraints
 class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier {
 
+  private val LOG = Logger[CustomConstraintsApplier]
+
   override def applyConstraints(w: DoubleMatrix, q: DoubleMatrix): DoubleMatrix = {
     val n = w.columns
     constructClosure(q)
     val neighborsMapping: Seq[Seq[Int]] = getNeighborsMapping(w, knn)
+    LOG.debug("imposing constraints")
     val wMod = new DoubleMatrix(n, n)
       .transform { (i, j, _) =>
         math.max(q.get(i, j), w.get(i, j))
       }
+    LOG.debug("modifying graph")
     for (i <- 0 until n; j <- 0 until n) {
       if (q.get(i, j) > 0) {
         for (k <- neighborsMapping(i); l <- neighborsMapping(j)) {
@@ -26,6 +31,7 @@ class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier 
   }
 
   private def constructClosure(m: DoubleMatrix): Unit = {
+    LOG.debug("constructing closure for constraints set")
     val n = m.columns
     for (i <- 0 until n; j <- 0 until i; k <- 0 until n) { // i -> k -> j => (i -> j) + (j -> i)
       if (m.get(i, k) > 0 && m.get(k, j) > 0) {
@@ -37,6 +43,7 @@ class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier 
   }
 
   private def getNeighborsMapping(w: DoubleMatrix, knn: Int): Seq[Seq[Int]] = {
+    LOG.debug("constructing neighbors mapping")
     val n = w.columns
     (for (i <- (0 until n).par) yield {
       (0 until n)
