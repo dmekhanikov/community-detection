@@ -12,11 +12,7 @@ class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier 
     val neighborsMapping: Seq[Seq[Int]] = getNeighborsMapping(w, knn)
     val wMod = new DoubleMatrix(n, n)
       .transform { (i, j, _) =>
-        if (q.get(i, j) > 0) {
-          1
-        } else {
-          w.get(i, j)
-        }
+        math.max(q.get(i, j), w.get(i, j))
       }
     for (i <- 0 until n; j <- 0 until n) {
       if (q.get(i, j) > 0) {
@@ -33,8 +29,9 @@ class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier 
     val n = m.columns
     for (i <- 0 until n; j <- 0 until i; k <- 0 until n) { // i -> k -> j => (i -> j) + (j -> i)
       if (m.get(i, k) > 0 && m.get(k, j) > 0) {
-        m.put(i, j, 1)
-        m.put(j, i, 1)
+        val newVal = math.max(m.get(i, j), m.get(i, k) * m.get(k, j))
+        m.put(i, j, newVal)
+        m.put(j, i, newVal)
       }
     }
   }
