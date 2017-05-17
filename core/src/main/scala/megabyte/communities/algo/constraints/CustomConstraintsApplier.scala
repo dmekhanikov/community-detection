@@ -38,7 +38,7 @@ class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier 
 
   private def getNeighborsMapping(w: DoubleMatrix, knn: Int): Seq[Seq[Int]] = {
     val n = w.columns
-    for (i <- 0 until n) yield {
+    (for (i <- (0 until n).par) yield {
       (0 until n)
         .map { j =>
           (j, w.get(i, j))
@@ -46,6 +46,6 @@ class CustomConstraintsApplier(private val knn: Int) extends ConstraintsApplier 
         .sortBy(-_._2)
         .map(_._1)
         .take(knn)
-    }
+    }).seq
   }
 }
