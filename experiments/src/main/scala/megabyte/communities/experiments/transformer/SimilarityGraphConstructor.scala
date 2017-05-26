@@ -5,9 +5,8 @@ import java.io.File
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
+import megabyte.communities.util.DataTransformer
 import megabyte.communities.util.DoubleMatrixOps._
-import megabyte.communities.util.Measures
-import org.jblas.DoubleMatrix
 
 object SimilarityGraphConstructor {
 
@@ -23,30 +22,12 @@ object SimilarityGraphConstructor {
     val numeration: Seq[String] = mergedData.values.flatMap(_.keys).toSet.toSeq
     normalizedData.par.foreach { case (net, users) =>
       LOG.info(s"Calculating adjacency matrix for $net")
-      val adj = calcAdjMatrix(users, numeration, SIGMA_FACTOR)
+      val objects = numeration.map { id => users(id) }
+      val adj = DataTransformer.heatWeightMatrix(objects, SIGMA_FACTOR)
       val outFile = new File(similarityGraphsDir, s"$net.csv")
       LOG.info(s"Writing result for $net to $outFile")
       adj.write(outFile, header = Some(numeration))
     }
     LOG.info("Finished, exiting")
-  }
-
-  def calcAdjMatrix(users: Users, numeration: Seq[String], sigmaFactor: Double): DoubleMatrix = {
-    val n = users.keys.size
-    val distances = new DoubleMatrix(n, n)
-    for (i <- (0 until n).par; j <- (i + 1 until n).par) {
-      val a = users(numeration(i))
-      val b = users(numeration(j))
-      val diff = a.zip(b).map { case (x, y) => x - y }
-      val dist = Measures.euclidNorm(diff)
-      distances.put(i, j, dist)
-      distances.put(j, i, dist)
-    }
-    val sigma = sigmaFactor * distances.data.sorted.apply(n * n / 2)
-    val adj = distances.map { dist =>
-      math.exp(-math.pow(dist, 2) / 2 / math.pow(sigma, 2))
-    }
-    0 until n foreach (i => adj.put(i, i, 0))
-    adj
   }
 }

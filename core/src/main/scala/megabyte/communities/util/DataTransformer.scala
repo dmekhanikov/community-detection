@@ -78,4 +78,23 @@ object DataTransformer {
     }
     m
   }
+
+  def heatWeightMatrix(objects: Seq[Seq[Double]], sigmaFactor: Double): DoubleMatrix = {
+    val n = objects.size
+    val distances = new DoubleMatrix(n, n)
+    for (i <- (0 until n).par; j <- (i + 1 until n).par) {
+      val a = objects(i)
+      val b = objects(j)
+      val diff = a.zip(b).map { case (x, y) => x - y }
+      val dist = Measures.euclidNorm(diff)
+      distances.put(i, j, dist)
+      distances.put(j, i, dist)
+    }
+    val sigma = sigmaFactor * distances.data.sorted.apply(n * n / 2)
+    val adj = distances.map { dist =>
+      math.exp(-math.pow(dist, 2) / 2 / math.pow(sigma, 2))
+    }
+    0 until n foreach (i => adj.put(i, i, 0))
+    adj
+  }
 }
