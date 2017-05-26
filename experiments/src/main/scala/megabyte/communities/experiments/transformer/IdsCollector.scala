@@ -8,8 +8,8 @@ import megabyte.communities.util.IO
 object IdsCollector {
 
   def main(args: Array[String]): Unit = {
-    val idSets = for (city <- Seq("London", "NewYork", "Singapore")) yield {
-      readIds(new File(baseDir, s"$city/ids/twitter.csv")).toSet
+    val idSets = for (dataset <- Seq("London", "NewYork", "Singapore")) yield {
+      readIds(new File(baseDir, s"$dataset/ids/twitter.csv")).toSet
     }
     val numIds = idSets.reduce((a, b) => a.union(b)).toSeq
     IO.writeLines(numIds, allIdsFile)

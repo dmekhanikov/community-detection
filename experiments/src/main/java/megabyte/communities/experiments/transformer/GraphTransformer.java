@@ -19,8 +19,8 @@ public class GraphTransformer {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphTransformer.class);
 
-    private static final String CITY = ExperimentConfig.config().city();
-    private static final String BASE_DIR = ExperimentConfig.config().baseDir() + "/" + CITY;
+    private static final String DATASET = ExperimentConfig.config().dataset();
+    private static final String BASE_DIR = ExperimentConfig.config().baseDir() + "/" + DATASET;
     private static final String IDS_DIR = BASE_DIR + "/ids";
     private static final String OUT_DIR = BASE_DIR + "/graphs";
 

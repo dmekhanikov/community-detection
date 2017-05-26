@@ -11,7 +11,7 @@ object SimilarityGraphClustering {
 
   private val LOG = Logger[SimilarityGraphClustering.type]
 
-  private val adjFile = new File(s"$baseDir/$city/graphs/similarity/$network.csv")
+  private val adjFile = new File(s"$baseDir/$dataset/graphs/similarity/$network.csv")
 
   def main(args: Array[String]): Unit = {
     val (_, adj) = readMatrixWithHeader(adjFile)

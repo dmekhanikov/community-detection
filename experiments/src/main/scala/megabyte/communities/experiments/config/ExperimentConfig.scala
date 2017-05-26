@@ -5,23 +5,23 @@ import java.util.Properties
 
 import scalaz.Scalaz._
 
-class ExperimentConfig private(val baseDir: String, val city: String, val network: String) {
-  val cityDir = new File(baseDir, city)
-  val idsDir = new File(cityDir, "ids")
+class ExperimentConfig private(val baseDir: String, val dataset: String, val network: String) {
+  val datasetDir = new File(baseDir, dataset)
+  val idsDir = new File(datasetDir, "ids")
   val allIdsFile = new File(baseDir, "allIds.txt")
   val trainIdsFile = new File(idsDir, "train.txt")
   val testIdsFile = new File(idsDir, "test.txt")
-  val graphsDir = new File(cityDir, "graphs")
+  val graphsDir = new File(datasetDir, "graphs")
   val similarityGraphsDir = new File(graphsDir, "similarity")
   val constrainedGraphsDir = new File(graphsDir, "constrained")
-  val labelsDir = new File(cityDir, "labels")
-  val labelsFile = new File(labelsDir, s"${city}GroundTruth.csv")
-  val subspacesDir = new File(cityDir, "subspaces")
+  val labelsDir = new File(datasetDir, "labels")
+  val labelsFile = new File(labelsDir, s"${dataset}GroundTruth.csv")
+  val subspacesDir = new File(datasetDir, "subspaces")
   val symSubspacesDir = new File(subspacesDir, "sym")
   val constrainedSubspacesDir = new File(subspacesDir, "constrained")
   val commonConstrainedSubspacesDir = new File(constrainedSubspacesDir, "common")
   val socialGraphsDir = new File(graphsDir, "connections")
-  val featuresDir = new File(cityDir, "features")
+  val featuresDir = new File(datasetDir, "features")
   val portalsDir = new File(baseDir, "portals")
   val featureFiles: Map[String, Seq[File]] = Map(
     ("twitter", Seq("LDA50Features", "LIWCFeatures", "manuallyDefinedTextFeatures")),
@@ -38,7 +38,7 @@ class ExperimentConfig private(val baseDir: String, val city: String, val networ
 object ExperimentConfig {
 
   private val CONFIG_FILE_NAME = "config.properties"
-  private val CITY_PROP = "city"
+  private val DATASET_PROP = "dataset"
   private val DATA_DIR_PROP = "dataDir"
   private val NETWORK_PROP = "network"
 
@@ -56,10 +56,10 @@ object ExperimentConfig {
     }
     val dataDir = Option(properties.getProperty(DATA_DIR_PROP))
       .getOrElse(throwNoProperty(DATA_DIR_PROP))
-    val city = Option(properties.getProperty(CITY_PROP))
-      .getOrElse(throwNoProperty(CITY_PROP))
+    val dataset = Option(properties.getProperty(DATASET_PROP))
+      .getOrElse(throwNoProperty(DATASET_PROP))
     val network = properties.getProperty(NETWORK_PROP)
-    new ExperimentConfig(dataDir, city, network)
+    new ExperimentConfig(dataDir, dataset, network)
   }
 
   private def throwNoProperty(prop: String): Nothing = {
