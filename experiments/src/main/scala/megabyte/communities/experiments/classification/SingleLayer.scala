@@ -14,7 +14,7 @@ object SingleLayer {
     val networkUsers: Map[String, Seq[Users]] =
       featureFiles.mapValues(_.map(readUsersData)).view.force
     val mergedUsers: Map[String, Users] = mergeUserData(networkUsers)
-    val normalizedData: Map[String, Users] = mergedUsers.mapValues(normalizeFeatures)
+    val normalizedData: Map[String, Users] = mergedUsers.mapValues(normalizeUserFeatures)
 
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)

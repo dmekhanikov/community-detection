@@ -11,7 +11,7 @@ import megabyte.communities.algo.graph.SpectralClustering
 import megabyte.communities.entities.Edge
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.IO.{readCSVToSeq, readMatrixWithHeader, readOrCalcMatrix}
-import megabyte.communities.util.{GraphFactory, IO}
+import megabyte.communities.util.{DataTransformer, GraphFactory, IO}
 import org.jblas.DoubleMatrix
 import weka.filters.unsupervised.attribute.Remove
 
@@ -58,27 +58,10 @@ object DataUtil {
     }.toMap
   }
 
-  def foldFeatures(values: Iterable[Features], f: (Double, Double) => Double): Features = {
-    values.tail.fold(values.head) { (min: Features, cur: Features) =>
-      min.zip(cur).map { case (a, b) => f(a, b) }
-    }
-  }
-
-  def normalizeFeatures(users: Users): Users = {
-    val values = users.values
-    val mins = foldFeatures(values, math.min)
-    val maxs = foldFeatures(values, math.max)
-    users.map { case (userId, features) =>
-      (userId,
-        features.zip(mins.zip(maxs))
-          .map { case (value, (min, max)) =>
-            if (min != max) {
-              (value - min) / (max - min)
-            } else {
-              value
-            }
-          })
-    }
+  def normalizeUserFeatures(users: Users): Users = {
+    val values: Iterable[Features] = users.values
+    val normalizedValues = DataTransformer.normalizeFeatures(values)
+    users.keys.zip(normalizedValues).toMap
   }
 
   def mergeFeatures(dataSets: Seq[Users]): Users = {

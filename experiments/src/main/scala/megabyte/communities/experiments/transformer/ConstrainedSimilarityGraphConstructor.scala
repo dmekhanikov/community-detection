@@ -20,7 +20,7 @@ object ConstrainedSimilarityGraphConstructor {
     val networksData: Map[String, Seq[Users]] =
       featureFiles.mapValues(_.map(readUsersData)).view.force
     val mergedData: Map[String, Users] = mergeUserData(networksData)
-    val normalizedData: Map[String, Users] = mergedData.mapValues(normalizeFeatures)
+    val normalizedData: Map[String, Users] = mergedData.mapValues(normalizeUserFeatures)
     val numeration: Seq[String] = mergedData.values.flatMap(_.keys).toSet.toSeq
     val fullNumeration = numeration ++ Seq("male", "female")
     val trainIds = IO.readLines(trainIdsFile)

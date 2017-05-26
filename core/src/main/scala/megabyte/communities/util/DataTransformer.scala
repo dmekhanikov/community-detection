@@ -97,4 +97,25 @@ object DataTransformer {
     0 until n foreach (i => adj.put(i, i, 0))
     adj
   }
+
+  def foldFeatures(values: Iterable[Seq[Double]], f: (Double, Double) => Double): Seq[Double] = {
+    values.tail.fold(values.head) { (min: Seq[Double], cur: Seq[Double]) =>
+      min.zip(cur).map { case (a, b) => f(a, b) }
+    }
+  }
+
+  def normalizeFeatures(objects: Iterable[Seq[Double]]): Iterable[Seq[Double]] = {
+    val mins = foldFeatures(objects, math.min)
+    val maxs = foldFeatures(objects, math.max)
+    objects.map { features =>
+      features.zip(mins.zip(maxs))
+        .map { case (value, (min, max)) =>
+          if (min != max) {
+            (value - min) / (max - min)
+          } else {
+            value
+          }
+        }
+    }
+  }
 }
