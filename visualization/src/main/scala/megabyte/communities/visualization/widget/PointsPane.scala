@@ -5,11 +5,11 @@ import javax.swing.{JFrame, JPanel}
 
 import scala.collection.mutable.ArrayBuffer
 
-class PointsPane(val points: Seq[(Double, Double)]) extends JPanel {
+class PointsPane(var points: Seq[(Double, Double)]) extends JPanel {
 
   private val frame: JFrame = new JFrame("Points")
-  private val edges = getEdges(points)
-  private var margin = 30
+  private var edges = getEdges(points)
+  private var margin = 40
   private var pointSize = 5
   private val callbacks = new ArrayBuffer[() => Unit]()
 
@@ -30,6 +30,11 @@ class PointsPane(val points: Seq[(Double, Double)]) extends JPanel {
   addMouseListener(_mouseListener)
   addMouseMotionListener(_mouseListener)
 
+  def setPoints(points: Seq[(Double, Double)]): Unit = {
+    this.points = points
+    this.edges = getEdges(points)
+  }
+
   override def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
 
@@ -48,8 +53,8 @@ class PointsPane(val points: Seq[(Double, Double)]) extends JPanel {
     }
 
     // draw constraints
-    drawLines(g2d, mlConstraints, Color.BLUE)
-    drawCurLine(g2d, mlStart, Color.BLUE)
+    drawLines(g2d, mlConstraints, Color.MAGENTA)
+    drawCurLine(g2d, mlStart, Color.MAGENTA)
     drawLines(g2d, clConstraints, Color.RED)
     drawCurLine(g2d, clStart, Color.RED)
   }

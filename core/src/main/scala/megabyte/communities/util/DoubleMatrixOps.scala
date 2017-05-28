@@ -94,7 +94,11 @@ final class DoubleMatrixOps(val self: DoubleMatrix) {
   }
 
   def prefixColumns(k: Int): DoubleMatrix = {
-    self.getColumns(interval(0, k - 1))
+    self.sliceColumns(0, k)
+  }
+
+  def sliceColumns(from: Int, to: Int): DoubleMatrix = {
+    self.getColumns(interval(from, to))
   }
 
   def norm: Double = self.norm2
