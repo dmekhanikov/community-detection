@@ -30,7 +30,7 @@ object TransformationExample {
 
   private val random = new Random(1)
 
-  private val sigma = 0.5
+  private val sigma = 0.6
   private val knn = 30
 
   private val points = fillUniform(bl1, tr1, n1) ++ fillUniform(bl2, tr2, n2) ++ fillUniform(bl3, tr3, n3)
@@ -43,9 +43,11 @@ object TransformationExample {
     val newPoints = matrixToPoints(subspace)
     val pointsPane = new PointsPane(newPoints)
     pointsPane.clustering = XMeans.getClustering(subspace)
-    pointsPane.subscribe(() => updateClustering(pointsPane, pointsMatrix))
-  }
 
+    pointsPane.subscribeForSpace(() => {
+      updateClustering(pointsPane, pointsMatrix)
+    })
+  }
   private def updateClustering(pointsPane: PointsPane, points: DoubleMatrix): Unit = {
     val q = constraintMatrix(n, pointsPane.mlConstraints, pointsPane.clConstraints)
     val constraintsApplier = new CustomConstraintsApplier(knn)

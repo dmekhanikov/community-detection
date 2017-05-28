@@ -29,10 +29,15 @@ class PointsPane(var points: Seq[(Double, Double)]) extends JPanel {
   private val _mouseListener = new MouseListener(this)
   addMouseListener(_mouseListener)
   addMouseMotionListener(_mouseListener)
+  setFocusable(true)
 
   def setPoints(points: Seq[(Double, Double)]): Unit = {
     this.points = points
     this.edges = getEdges(points)
+  }
+
+  def subscribeForSpace(spaceListener: () => Unit): Unit = {
+    addKeyListener(new KeyboardListener(spaceListener))
   }
 
   override def paintComponent(g: Graphics): Unit = {
