@@ -31,6 +31,7 @@ libraryDependencies in ThisBuild ++= Seq(
   "org.jblas" % "jblas" % "1.2.4",
   "nz.ac.waikato.cms.weka" % "weka-stable" % "3.8.1",
   "nz.ac.waikato.cms.weka" % "XMeans" % "1.0.4",
+  "com.edwardraff" % "JSAT" % "0.0.8",
 
   "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",

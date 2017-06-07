@@ -2,6 +2,7 @@ package megabyte.communities.util
 
 import java.util
 
+import jsat.classifiers.ClassificationDataSet
 import megabyte.communities.util.DoubleMatrixOps._
 import org.jblas.DoubleMatrix
 import weka.core.{Attribute, DenseInstance, Instances}
@@ -36,6 +37,27 @@ object DataTransformer {
         inst.setValue(j, features.get(i, j))
       }
       inst.setValue(labelAttr, labels(i))
+      instances.add(inst)
+    }
+    instances.setClass(labelAttr)
+    instances
+  }
+
+  def constructInstances(dataSet: ClassificationDataSet): Instances = {
+    val featuresNum = dataSet.getNumFeatures
+    val categoriesNum = dataSet.getPredicting.getNumOfCategories
+    val attributes = makeAttributes(featuresNum)
+    val labelAttr = new Attribute("label", (0 until categoriesNum).map(_.toString), featuresNum)
+    attributes.add(labelAttr)
+    val instances = new Instances("Instances", attributes, categoriesNum)
+    for (i <- 0 until dataSet.getSampleSize) {
+      val inst = new DenseInstance(featuresNum + 1)
+      val dataPoint = dataSet.getDataPoint(i)
+      inst.setDataset(instances)
+      for (j <- 0 until featuresNum) {
+        inst.setValue(j, dataPoint.getNumericalValues.get(j))
+      }
+      inst.setValue(labelAttr, dataSet.getDataPointCategory(i))
       instances.add(inst)
     }
     instances.setClass(labelAttr)
