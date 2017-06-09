@@ -1,23 +1,19 @@
 package megabyte.communities.experiments.transformer.general
 
-import java.io.File
-
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
-import megabyte.communities.util.IO
 import megabyte.communities.util.DataTransformer._
 import megabyte.communities.util.DoubleMatrixOps._
+import megabyte.communities.util.IO
 
 object SimilarityGraphConstructor {
 
   private val LOG = Logger[SimilarityGraphConstructor.type]
 
   private val SIGMA_FACTOR = 1.5
-  private val arffFile = new File(datasetDir, "data.arff")
-  private val graphFile = new File(datasetDir, "graph.csv")
 
   def main(args: Array[String]): Unit = {
-    val instances = IO.readInstances(arffFile)
+    val instances = IO.readInstances(dataFile)
     val n = instances.size
     val f = instances.numAttributes - 1
     val objects: Seq[Seq[Double]] =
@@ -30,6 +26,7 @@ object SimilarityGraphConstructor {
     LOG.info(s"Calculating weight matrix")
     val w = heatWeightMatrix(normalizedObjects, SIGMA_FACTOR)
     LOG.info(s"Writing result to file")
+    graphsDir.mkdirs()
     w.write(graphFile)
   }
 }

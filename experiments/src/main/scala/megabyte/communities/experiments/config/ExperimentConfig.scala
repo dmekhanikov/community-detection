@@ -13,6 +13,7 @@ class ExperimentConfig private(val baseDir: String, val dataset: String, val net
   val trainIdsFile = new File(idsDir, "train.txt")
   val testIdsFile = new File(idsDir, "test.txt")
   val graphsDir = new File(datasetDir, "graphs")
+  val graphFile = new File(graphsDir, "similarity.csv")
   val similarityGraphsDir = new File(graphsDir, "similarity")
   val constrainedGraphsDir = new File(graphsDir, "constrained")
   val labelsDir = new File(datasetDir, "labels")
