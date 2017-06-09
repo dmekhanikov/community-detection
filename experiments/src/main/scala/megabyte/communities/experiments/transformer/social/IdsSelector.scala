@@ -17,7 +17,7 @@ object IdsSelector {
     val networkUsers: Map[String, Seq[Users]] =
       featureFiles.mapValues(_.map(readUsersData))
     LOG.info("Finding users intersection")
-    val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val allLabels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val allIds: Seq[String] =
       findUsersIntersection(networkUsers.values.flatten.toSeq)
         .filter(allLabels.contains)

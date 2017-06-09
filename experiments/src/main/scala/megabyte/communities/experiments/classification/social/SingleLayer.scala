@@ -20,7 +20,7 @@ object SingleLayer {
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
 
-    val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val allLabels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val trainLabels = trainIds.map(allLabels)
     val testLabels = testIds.map(allLabels)
 

@@ -19,7 +19,7 @@ object EarlyFusionICA extends ICAPreprocessor {
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
 
-    val labels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val labels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
 
     val (componentNum, _) = tuneComponentsNum(concatUsers, labels, trainIds)
     val fMeasure = evaluate(concatUsers, labels, trainIds, testIds, componentNum)

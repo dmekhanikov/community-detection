@@ -18,7 +18,7 @@ object SingleLayerICA extends ICAPreprocessor {
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
 
-    val labels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val labels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
 
     for ((net, users) <- normalizedData) {
       LOG.info("Evaluating " + net)

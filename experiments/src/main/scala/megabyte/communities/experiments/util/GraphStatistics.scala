@@ -14,7 +14,7 @@ object GraphStatistics {
   private val mongoDAO = new MongoDAO(MongoDAO.CRAWLER_DB)
 
   def main(args: Array[String]): Unit = {
-    val labels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val labels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val maleSubscribers = mutable.Map[Long, Int]()
     val femaleSubscribers = mutable.Map[Long, Int]()
     val ids = mongoDAO.getUserIds(network)

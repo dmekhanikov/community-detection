@@ -22,7 +22,7 @@ object EarlyFusionPCA extends PCAPreprocessor {
     val trainFeatures = makeFeaturesMatrix(concatUsers, trainIds)
     val testFeatures = makeFeaturesMatrix(concatUsers, testIds)
 
-    val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val allLabels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val trainLabels = trainIds.map(allLabels)
     val testLabels = testIds.map(allLabels)
 

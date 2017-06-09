@@ -14,8 +14,8 @@ object Evaluator {
 
   private val LOG = Logger[Evaluator.type]
 
-  private val trainFile = new File(labelsDir, "train.arff")
-  private val testFile = new File(labelsDir, "test.arff")
+  private val trainFile = new File(groundDir, "train.arff")
+  private val testFile = new File(groundDir, "test.arff")
 
   def main(args: Array[String]): Unit = {
     val trainData = IO.readInstances(trainFile)

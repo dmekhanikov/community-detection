@@ -15,7 +15,7 @@ object EarlyFusion {
     val normalizedData: Map[String, Users] = mergedUsers.mapValues(normalizeUserFeatures)
     val concatUsers: Users = concatFeatures(normalizedData)
 
-    val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val allLabels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
 

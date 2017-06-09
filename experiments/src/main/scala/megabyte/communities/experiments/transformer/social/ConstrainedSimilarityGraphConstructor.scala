@@ -15,7 +15,7 @@ object ConstrainedSimilarityGraphConstructor {
   private val LOG = Logger[ConstrainedSimilarityGraphConstructor.type]
 
   def main(args: Array[String]): Unit = {
-        val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+        val allLabels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val networksData: Map[String, Seq[Users]] =
       featureFiles.mapValues(_.map(readUsersData)).view.force
     val mergedData: Map[String, Users] = mergeUserData(networksData)

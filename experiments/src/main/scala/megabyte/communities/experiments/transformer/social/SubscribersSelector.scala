@@ -20,7 +20,7 @@ object SubscribersSelector {
     val portalIds = IO.readLines(portalIdsFile).map(_.toLong).toSet
     val dao = new MongoDAO(MongoDAO.CRAWLER_DB)
     val userIds = dao.getUserIds(network)
-    val labels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val labels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val subscribers = userIds
       .filter { id =>
         val optLabel = labels.get(md5(id.toString))

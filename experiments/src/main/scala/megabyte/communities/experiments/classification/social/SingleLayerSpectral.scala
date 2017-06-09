@@ -25,7 +25,7 @@ object SingleLayerSpectral {
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
 
-    val allLabels: Map[String, String] = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val allLabels: Map[String, String] = readLabels(groundFile, ID_COL, GENDER_COL)
     val trainIndices = trainIds.map(id => allIds.indexOf(id))
     val testIndices = testIds.map(id => allIds.indexOf(id))
 

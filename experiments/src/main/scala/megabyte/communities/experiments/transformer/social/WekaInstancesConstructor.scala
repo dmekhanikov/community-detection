@@ -14,8 +14,8 @@ object WekaInstancesConstructor {
 
   private val LOG = Logger[WekaInstancesConstructor.type]
 
-  private val trainFile = new File(labelsDir, "train.arff")
-  private val testFile = new File(labelsDir, "test.arff")
+  private val trainFile = new File(groundDir, "train.arff")
+  private val testFile = new File(groundDir, "test.arff")
 
   def main(args: Array[String]): Unit = {
     val (trainInstances, testInstances) = dataset()
@@ -26,7 +26,7 @@ object WekaInstancesConstructor {
   }
 
   private def dataset(): (Instances, Instances) = {
-    val allLabels = readLabels(labelsFile, ID_COL, GENDER_COL)
+    val allLabels = readLabels(groundFile, ID_COL, GENDER_COL)
 
     val trainIds = IO.readLines(trainIdsFile)
     val testIds = IO.readLines(testIdsFile)
