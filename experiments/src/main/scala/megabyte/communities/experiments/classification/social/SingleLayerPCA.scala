@@ -1,11 +1,13 @@
 package megabyte.communities.experiments.classification.social
 
 import com.typesafe.scalalogging.Logger
+import megabyte.communities.experiments.classification.general.PrincipalComponents
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.{DataTransformer, IO}
+import weka.classifiers.trees.RandomForest
 
-object SingleLayerPCA extends PCAPreprocessor {
+object SingleLayerPCA {
 
   private val LOG = Logger[SingleLayerPCA.type]
 
@@ -30,7 +32,7 @@ object SingleLayerPCA extends PCAPreprocessor {
       val trainInstances = DataTransformer.constructInstances(trainFeatures, GENDER_VALUES, trainLabels)
       val testInstances = DataTransformer.constructInstances(testFeatures, GENDER_VALUES, testLabels)
 
-      val (k, fMeasure) = tuneFeaturesNum(trainInstances, testInstances)
+      val (k, fMeasure) = PrincipalComponents.tuneFeaturesNum(trainInstances, testInstances, new RandomForest)
       LOG.info(s"Result for $net: k=$k; F-Measure=$fMeasure")
     }
   }
