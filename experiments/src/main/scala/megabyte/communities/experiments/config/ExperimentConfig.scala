@@ -7,6 +7,7 @@ import scalaz.Scalaz._
 
 class ExperimentConfig private(val baseDir: String, val dataset: String, val network: String) {
   val datasetDir = new File(baseDir, dataset)
+  val dataFile = new File(datasetDir, "data.arff")
   val idsDir = new File(datasetDir, "ids")
   val allIdsFile = new File(baseDir, "allIds.txt")
   val trainIdsFile = new File(idsDir, "train.txt")

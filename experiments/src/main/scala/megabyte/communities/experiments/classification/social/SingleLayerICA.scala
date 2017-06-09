@@ -1,4 +1,4 @@
-package megabyte.communities.experiments.classification
+package megabyte.communities.experiments.classification.social
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._

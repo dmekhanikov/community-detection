@@ -1,4 +1,4 @@
-package megabyte.communities.experiments.transformer
+package megabyte.communities.experiments.transformer.social
 
 import java.io.File
 

@@ -1,4 +1,4 @@
-package megabyte.communities.experiments.transformer
+package megabyte.communities.experiments.transformer.social
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._

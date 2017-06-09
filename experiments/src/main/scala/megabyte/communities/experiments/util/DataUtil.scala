@@ -13,6 +13,7 @@ import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.util.IO.{readCSVToSeq, readMatrixWithHeader, readOrCalcMatrix}
 import megabyte.communities.util.{DataTransformer, GraphFactory, IO}
 import org.jblas.DoubleMatrix
+import weka.core.Instances
 import weka.filters.unsupervised.attribute.Remove
 
 import scala.collection.JavaConversions._
@@ -173,5 +174,24 @@ object DataUtil {
     IO.readLines(allIdsFile)
       .map(id => md5(id) -> id.toLong)
       .toMap
+  }
+
+  def copyInstances(src: Instances, ids: Seq[Int]): Instances = {
+    val dst = new Instances(src, ids.size)
+    for (i <- ids) {
+      val instance = src.get(i)
+      dst.add(instance)
+    }
+    dst
+  }
+
+  def readAndSplit(arffFile: File, trainIdsFile: File, testIdsFile: File): (Instances, Instances) = {
+    val instances = IO.readInstances(arffFile)
+    instances.setClassIndex(instances.numAttributes - 1)
+    val trainIds = IO.readLines(trainIdsFile).map(_.toInt)
+    val testIds = IO.readLines(testIdsFile).map(_.toInt)
+    val trainInstances = copyInstances(instances, trainIds)
+    val testInstances = copyInstances(instances, testIds)
+    (trainInstances, testInstances)
   }
 }

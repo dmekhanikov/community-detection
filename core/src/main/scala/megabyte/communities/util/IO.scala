@@ -9,6 +9,7 @@ import org.jblas.DoubleMatrix
 import weka.core.Instances
 import weka.core.converters.ArffSaver
 
+import scala.collection.GenSeq
 import scala.collection.JavaConversions._
 
 object IO {
@@ -114,7 +115,7 @@ object IO {
     }
   }
 
-  def writeLines(lines: Seq[String], file: File): Unit = {
+  def writeLines(lines: GenSeq[String], file: File): Unit = {
     val writer = new PrintWriter(file)
     try {
       lines.foreach(writer.println)

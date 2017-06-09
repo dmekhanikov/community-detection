@@ -1,10 +1,10 @@
-package megabyte.communities.experiments.classification
+package megabyte.communities.experiments.classification.social
 
 import com.typesafe.scalalogging.Logger
 import jsat.classifiers.{CategoricalData, ClassificationDataSet, DataPoint}
 import jsat.datatransform.FastICA
 import jsat.linear.DenseVector
-import megabyte.communities.experiments.classification.EarlyFusionICA.{constructDataSet, tuneComponentsNum}
+import megabyte.communities.experiments.classification.Evaluator
 import megabyte.communities.experiments.util.DataUtil.{Features, GENDER_VALUES, Users}
 import megabyte.communities.util.DataTransformer
 import weka.classifiers.trees.RandomForest

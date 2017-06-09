@@ -1,10 +1,11 @@
-package megabyte.communities.experiments.classification
+package megabyte.communities.experiments.classification.social
 
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.algo.constraints.CustomConstraintsApplier
 import megabyte.communities.algo.graph.ConstrainedSpectralClustering
+import megabyte.communities.experiments.classification.Evaluator
 import megabyte.communities.experiments.config.ExperimentConfig.config._
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.DoubleMatrixOps._

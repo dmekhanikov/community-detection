@@ -1,6 +1,7 @@
-package megabyte.communities.experiments.classification
+package megabyte.communities.experiments.classification.social
 
 import com.typesafe.scalalogging.Logger
+import megabyte.communities.experiments.classification.Evaluator
 import megabyte.communities.experiments.util.DataUtil.attributesPrefixFilter
 import weka.attributeSelection.{AttributeSelection, PrincipalComponents, Ranker}
 import weka.classifiers.meta.FilteredClassifier

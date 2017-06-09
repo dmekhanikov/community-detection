@@ -1,10 +1,9 @@
-package megabyte.communities.experiments.transformer
+package megabyte.communities.experiments.transformer.social
 
 import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import megabyte.communities.experiments.config.ExperimentConfig.config._
-import megabyte.communities.experiments.transformer.SimilarityGraphConstructor.SIGMA_FACTOR
 import megabyte.communities.experiments.util.DataUtil._
 import megabyte.communities.util.DataTransformer.heatWeightMatrix
 import megabyte.communities.util.DoubleMatrixOps._
@@ -33,7 +32,7 @@ object ConstrainedSimilarityGraphConstructor {
       val meanMap = Map("male" -> meanMale, "female" -> meanFemale)
       val allUsers = users ++ meanMap
       val objects = fullNumeration.map(allUsers)
-      val adj = heatWeightMatrix(objects, SIGMA_FACTOR)
+      val adj = heatWeightMatrix(objects, SimilarityGraphConstructor.SIGMA_FACTOR)
       val outFile = new File(constrainedGraphsDir, s"$net.csv")
       LOG.info(s"Writing result for $net to $outFile")
       adj.write(outFile, header = Some(fullNumeration))

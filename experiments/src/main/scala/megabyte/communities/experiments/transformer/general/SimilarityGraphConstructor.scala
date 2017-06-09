@@ -1,4 +1,4 @@
-package megabyte.communities.experiments.transformer.arff
+package megabyte.communities.experiments.transformer.general
 
 import java.io.File
 
