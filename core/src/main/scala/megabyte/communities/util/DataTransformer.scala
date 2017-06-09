@@ -70,6 +70,25 @@ object DataTransformer {
     DataTransformer.constructInstances(features, labelValues, labels)
   }
 
+  def constructInstances(featuresSeq: Seq[Seq[Double]], labelValues: Seq[String], labels: Seq[String]): Instances = {
+    val featuresNum = featuresSeq.head.size
+    val attributes = makeAttributes(featuresNum)
+    val labelAttr = new Attribute("label", labelValues, featuresNum)
+    attributes.add(labelAttr)
+    val instances = new Instances("Instances", attributes, labels.size)
+    for ((features, label) <- featuresSeq.zip(labels)) {
+      val inst = new DenseInstance(featuresNum + 1)
+      inst.setDataset(instances)
+      for (j <- 0 until featuresNum) {
+        inst.setValue(j, features(j))
+      }
+      inst.setValue(labelAttr, label)
+      instances.add(inst)
+    }
+    instances.setClass(labelAttr)
+    instances
+  }
+
   private def makeAttributes(n: Int): util.ArrayList[Attribute] = {
     val attributes = new util.ArrayList[Attribute](n)
     for (i <- 0 until n) {

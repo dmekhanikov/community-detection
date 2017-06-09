@@ -32,6 +32,8 @@ libraryDependencies in ThisBuild ++= Seq(
   "nz.ac.waikato.cms.weka" % "weka-stable" % "3.8.1",
   "nz.ac.waikato.cms.weka" % "XMeans" % "1.0.4",
   "com.edwardraff" % "JSAT" % "0.0.8",
+  "org.deeplearning4j" % "deeplearning4j-core" % "0.8.0",
+  "org.nd4j" % "nd4j-cuda-8.0-platform" % "0.8.0",
 
   "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
